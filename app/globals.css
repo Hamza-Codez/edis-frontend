@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  --color-*: initial;
+
+  /* Surfaces */
+  --color-canvas: #F5F4F0;
+  --color-surface: #FFFFFF;
+  --color-overlay: #FFFFFF;
+
+  /* Structure */
+  --color-structure: #EAE8E1;
+  --color-border: #D1CEC5;
+
+  /* Text */
+  --color-text: #1C1B1A;
+  --color-text-muted: #5C5B5A;
+  --color-text-inverse: #FFFFFF;
+  --color-text-on-accent: #FFFFFF;
+
+  /* Action */
+  --color-accent: #60241E;
+  --color-accent-hover: #4D1D18;
+  
+  /* Status */
+  --color-on-track: #2D6B3E;
+  --color-at-risk: #B8860B;
+  --color-overdue: #B34A44;
+
+  /* Badge Status */
+  --color-badge-pending-bg: #EAE8E1;
+  --color-badge-pending-text: #5C5B5A;
+  --color-badge-extracting-bg: #DCECF5;
+  --color-badge-extracting-text: #1E4E6D;
+  --color-badge-chunking-bg: #E3D9F1;
+  --color-badge-chunking-text: #412270;
+  --color-badge-embedding-bg: #FDE8D4;
+  --color-badge-embedding-text: #7C3C00;
+  --color-badge-indexed-bg: #D6EAD7;
+  --color-badge-indexed-text: #205327;
+  --color-badge-failed-bg: #F4D3D1;
+  --color-badge-failed-text: #8C241D;
+
+  /* Controls */
+  --color-control: #EAE8E1;
+  --color-control-hover: #D1CEC5;
+  --color-control-border: #D1CEC5;
+
+  /* Radii */
+  --radius-none: 0px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-full: 9999px;
+
+  /* Fonts */
+  --font-sans: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer utilities {
+  .font-space-grotesk {
+    font-family: var(--font-heading);
+  }
+}
