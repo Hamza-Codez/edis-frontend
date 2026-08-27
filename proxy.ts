@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+// Next.js 16 renamed middleware.ts to proxy.ts and expects the export to be
+// named `proxy` (or default). Exported as `middleware` it is not a warning —
+// the production build fails, so nothing using it ever deployed.
+export function proxy(request: NextRequest) {
   const session = request.cookies.get('session');
   
   if (!session && !request.nextUrl.pathname.startsWith('/login')) {

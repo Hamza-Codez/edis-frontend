@@ -5,6 +5,13 @@ import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { fetchApi } from '../../lib/api-client';
 
+const SEARCH_MODES = ['vector', 'keyword', 'hybrid'] as const;
+type SearchMode = (typeof SEARCH_MODES)[number];
+
+function isSearchMode(value: string): value is SearchMode {
+  return (SEARCH_MODES as readonly string[]).includes(value);
+}
+
 interface Chunk {
   chunk_id: number;
   document_id: string;
@@ -20,7 +27,7 @@ interface Chunk {
 
 export default function SearchPage() {
   const [question, setQuestion] = useState('');
-  const [mode, setMode] = useState<'vector' | 'keyword' | 'hybrid'>('hybrid');
+  const [mode, setMode] = useState<SearchMode>('hybrid');
   const [threshold, setThreshold] = useState<number>(0.5);
   const [results, setResults] = useState<Chunk[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,8 +51,8 @@ export default function SearchPage() {
       }) as { chunks: Chunk[] };
       
       setResults(data.chunks);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during search.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred during search.');
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +96,9 @@ export default function SearchPage() {
           <select
             id="mode"
             value={mode}
-            onChange={(e) => setMode(e.target.value as any)}
+            onChange={(e) => {
+              if (isSearchMode(e.target.value)) setMode(e.target.value);
+            }}
             className="bg-canvas text-text border border-border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
             disabled={isLoading}
           >
@@ -101,7 +110,7 @@ export default function SearchPage() {
         <button
           type="submit"
           disabled={isLoading || !question.trim()}
-          className="bg-accent text-white px-6 py-2 rounded-md font-medium hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-canvas disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 h-10"
+          className="bg-accent text-text-on-accent px-6 py-2 rounded-md font-medium hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-canvas disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 h-10"
         >
           <Search size={18} />
           {isLoading ? 'Searching...' : 'Search'}

@@ -42,7 +42,7 @@ export default function LoginPage() {
         <h1 className="font-space-grotesk font-semibold text-2xl text-text mb-6">Sign In</h1>
         
         {error && (
-          <div className="mb-4 bg-at-risk/10 text-at-risk px-4 py-2 text-sm border border-at-risk/20">
+          <div className="mb-4 bg-danger/10 text-danger px-4 py-2 text-sm border border-danger/20">
             {error}
           </div>
         )}

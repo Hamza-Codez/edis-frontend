@@ -22,10 +22,12 @@
   --color-accent: #60241E;
   --color-accent-hover: #4D1D18;
   
-  /* Status */
-  --color-on-track: #2D6B3E;
-  --color-at-risk: #B8860B;
-  --color-overdue: #B34A44;
+  /* Status — semantic names. `--color-*: initial` above wipes Tailwind's
+     default palette, so any utility naming a colour not defined here compiles
+     to nothing, silently. Add the token before using the class. */
+  --color-success: #2D6B3E;
+  --color-warning: #B8860B;
+  --color-danger: #B34A44;
 
   /* Badge Status */
   --color-badge-pending-bg: #EAE8E1;
