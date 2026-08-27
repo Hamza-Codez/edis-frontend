@@ -319,6 +319,11 @@ export interface components {
             /** Citations */
             citations: components["schemas"]["CitationChunk"][];
         };
+        /** DocumentListResponse */
+        DocumentListResponse: {
+            /** Items */
+            items: components["schemas"]["DocumentResponse"][];
+        };
         /** DocumentResponse */
         DocumentResponse: {
             /**
@@ -803,9 +808,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["DocumentListResponse"];
                 };
             };
             /** @description Validation Error */
