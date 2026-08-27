@@ -83,7 +83,8 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete User */
+        delete: operations["delete_user_users__user_id__delete"];
         options?: never;
         head?: never;
         /** Update User */
@@ -121,6 +122,91 @@ export interface paths {
         post?: never;
         /** Delete Document */
         delete: operations["delete_document_documents__document_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/documents/{document_id}/reindex": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reindex Document Endpoint */
+        post: operations["reindex_document_endpoint_documents__document_id__reindex_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Search */
+        post: operations["search_search_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/qa/ask": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ask */
+        post: operations["ask_qa_ask_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/queries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Queries */
+        get: operations["list_queries_queries_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/queries/{query_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Query */
+        get: operations["get_query_queries__query_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -181,11 +267,107 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AnswerPayload */
+        AnswerPayload: {
+            /** Claims */
+            claims: components["schemas"]["ClaimResponse"][];
+        };
+        /** AskRequest */
+        AskRequest: {
+            /** Question */
+            question: string;
+        };
+        /** AskResponse */
+        AskResponse: {
+            /** Outcome */
+            outcome: string;
+            /** Query Id */
+            query_id: number;
+            /** Message */
+            message: string | null;
+            answer: components["schemas"]["AnswerPayload"] | null;
+        };
         /** Body_upload_document_documents_post */
         Body_upload_document_documents_post: {
             /** File */
             file: string;
         };
+        /** CitationChunk */
+        CitationChunk: {
+            /** Chunk Id */
+            chunk_id: number;
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /** Filename */
+            filename: string;
+            /** Page Start */
+            page_start: number;
+            /** Page End */
+            page_end: number;
+            /** Snippet */
+            snippet: string;
+            /** Similarity */
+            similarity: number;
+        };
+        /** ClaimResponse */
+        ClaimResponse: {
+            /** Text */
+            text: string;
+            /** Citations */
+            citations: components["schemas"]["CitationChunk"][];
+        };
+        /** DocumentResponse */
+        DocumentResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Filename */
+            filename: string;
+            /** Content Type */
+            content_type: string;
+            /** Byte Size */
+            byte_size: number;
+            /** Content Sha256 */
+            content_sha256: string;
+            /** Page Count */
+            page_count: number | null;
+            status: components["schemas"]["DocumentStatus"];
+            /** Status Detail */
+            status_detail: string | null;
+            /**
+             * Uploaded By
+             * Format: uuid
+             */
+            uploaded_by: string;
+            /** Processing Started At */
+            processing_started_at: string | null;
+            /** Indexed At */
+            indexed_at: string | null;
+            /** Chunk Count */
+            chunk_count: number;
+            /** Embedding Model */
+            embedding_model: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * DocumentStatus
+         * @enum {string}
+         */
+        DocumentStatus: "pending" | "extracting" | "chunking" | "embedding" | "indexed" | "failed";
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -197,6 +379,111 @@ export interface components {
             email: string;
             /** Password */
             password: string;
+        };
+        /** QueryDetailResponse */
+        QueryDetailResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: string;
+            /** Question */
+            question: string;
+            /** Outcome */
+            outcome: string;
+            /** Top Similarity */
+            top_similarity: number | null;
+            /** Llm Model */
+            llm_model: string | null;
+            /** Prompt Tokens */
+            prompt_tokens: number | null;
+            /** Completion Tokens */
+            completion_tokens: number | null;
+            /** Latency Ms */
+            latency_ms: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Retrieved Chunk Ids */
+            retrieved_chunk_ids: number[];
+            /** Answer Json */
+            answer_json: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** QueryResponse */
+        QueryResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: string;
+            /** Question */
+            question: string;
+            /** Outcome */
+            outcome: string;
+            /** Top Similarity */
+            top_similarity: number | null;
+            /** Llm Model */
+            llm_model: string | null;
+            /** Prompt Tokens */
+            prompt_tokens: number | null;
+            /** Completion Tokens */
+            completion_tokens: number | null;
+            /** Latency Ms */
+            latency_ms: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** SearchRequest */
+        SearchRequest: {
+            /** Question */
+            question: string;
+            /**
+             * Limit
+             * @default 10
+             */
+            limit: number;
+            /**
+             * Mode
+             * @default hybrid
+             * @enum {string}
+             */
+            mode: "vector" | "keyword" | "hybrid";
+        };
+        /** SearchResponse */
+        SearchResponse: {
+            /** Chunks */
+            chunks: components["schemas"]["SearchResponseChunk"][];
+        };
+        /** SearchResponseChunk */
+        SearchResponseChunk: {
+            /** Similarity */
+            similarity: number;
+            /** Text */
+            text: string;
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /** Filename */
+            filename: string;
+            /** Page Start */
+            page_start: number;
+            /** Page End */
+            page_end: number;
+            /** Ordinal */
+            ordinal: number;
+            /** Vector Rank */
+            vector_rank?: number | null;
+            /** Keyword Rank */
+            keyword_rank?: number | null;
+            /** Score */
+            score?: number | null;
         };
         /** UserCreate */
         UserCreate: {
@@ -278,7 +565,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": {
+                        [key: string]: string;
+                    };
                 };
             };
             /** @description Validation Error */
@@ -297,7 +586,9 @@ export interface operations {
             query?: never;
             header?: never;
             path?: never;
-            cookie?: never;
+            cookie?: {
+                csrf_token?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -307,7 +598,18 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -349,6 +651,7 @@ export interface operations {
             header?: never;
             path?: never;
             cookie?: {
+                csrf_token?: string | null;
                 session?: string | null;
             };
         };
@@ -380,6 +683,7 @@ export interface operations {
             header?: never;
             path?: never;
             cookie?: {
+                csrf_token?: string | null;
                 session?: string | null;
             };
         };
@@ -409,6 +713,38 @@ export interface operations {
             };
         };
     };
+    delete_user_users__user_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: {
+                csrf_token?: string | null;
+                session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     update_user_users__user_id__patch: {
         parameters: {
             query?: never;
@@ -417,6 +753,7 @@ export interface operations {
                 user_id: string;
             };
             cookie?: {
+                csrf_token?: string | null;
                 session?: string | null;
             };
         };
@@ -466,7 +803,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */
@@ -504,7 +843,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["DocumentResponse"];
                 };
             };
             /** @description Validation Error */
@@ -537,7 +876,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["DocumentResponse"];
                 };
             };
             /** @description Validation Error */
@@ -583,6 +922,182 @@ export interface operations {
             };
         };
     };
+    reindex_document_endpoint_documents__document_id__reindex_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: {
+                session?: string | null;
+                csrf_token?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    search_search_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                csrf_token?: string | null;
+                session?: string | null;
+            };
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SearchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ask_qa_ask_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                csrf_token?: string | null;
+                session?: string | null;
+            };
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AskRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AskResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_queries_queries_get: {
+        parameters: {
+            query?: {
+                outcome?: string | null;
+                start_date?: string | null;
+                end_date?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: {
+                session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QueryResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_query_queries__query_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                query_id: number;
+            };
+            cookie?: {
+                session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QueryDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     health_check_health_get: {
         parameters: {
             query?: never;
@@ -598,7 +1113,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": {
+                        [key: string]: string;
+                    };
                 };
             };
         };
@@ -638,7 +1155,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": {
+                        [key: string]: number;
+                    };
                 };
             };
         };

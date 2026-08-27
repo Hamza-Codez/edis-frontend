@@ -1,13 +1,9 @@
 import 'server-only';
 import { cookies } from 'next/headers';
 
-type User = {
-  id: string;
-  email: string;
-  role: string;
-};
+import type { CurrentUser } from './types';
 
-export async function getCurrentUser(): Promise<User | null> {
+export async function getCurrentUser(): Promise<CurrentUser | null> {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get('session');
   

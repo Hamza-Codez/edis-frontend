@@ -4,32 +4,19 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { fetchApi } from '../../lib/api-client';
+import type { SearchMode, SearchResponse, SearchResponseChunk } from '../../lib/types';
 
 const SEARCH_MODES = ['vector', 'keyword', 'hybrid'] as const;
-type SearchMode = (typeof SEARCH_MODES)[number];
 
 function isSearchMode(value: string): value is SearchMode {
   return (SEARCH_MODES as readonly string[]).includes(value);
-}
-
-interface Chunk {
-  chunk_id: number;
-  document_id: string;
-  filename: string;
-  page_start: number;
-  page_end: number;
-  snippet: string;
-  similarity: number;
-  score: number | null;
-  vector_rank: number | null;
-  keyword_rank: number | null;
 }
 
 export default function SearchPage() {
   const [question, setQuestion] = useState('');
   const [mode, setMode] = useState<SearchMode>('hybrid');
   const [threshold, setThreshold] = useState<number>(0.5);
-  const [results, setResults] = useState<Chunk[] | null>(null);
+  const [results, setResults] = useState<SearchResponseChunk[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,13 +29,13 @@ export default function SearchPage() {
     setResults(null);
 
     try {
-      const data = await fetchApi('/search', {
+      const data = await fetchApi<SearchResponse>('/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ question, mode, limit: 10 }),
-      }) as { chunks: Chunk[] };
+      });
       
       setResults(data.chunks);
     } catch (err: unknown) {
@@ -132,7 +119,7 @@ export default function SearchPage() {
       {results && results.length > 0 && (
         <div className="space-y-4">
           {results.map((chunk, index) => (
-            <div key={chunk.chunk_id} className={`bg-structure border rounded-lg shadow-sm overflow-hidden ${chunk.similarity < threshold ? 'border-warning/50' : 'border-border'}`}>
+            <div key={`${chunk.document_id}-${chunk.ordinal}`} className={`bg-structure border rounded-lg shadow-sm overflow-hidden ${chunk.similarity < threshold ? 'border-warning/50' : 'border-border'}`}>
               {chunk.similarity < threshold && (
                 <div className="bg-warning/10 text-warning px-4 py-1 text-xs font-medium border-b border-warning/20">
                   Below Answer Threshold
@@ -166,7 +153,7 @@ export default function SearchPage() {
                 </div>
                 
                 <div className="bg-canvas p-4 rounded border border-border">
-                  <p className="text-text whitespace-pre-wrap font-sora leading-relaxed">{chunk.snippet}</p>
+                  <p className="text-text whitespace-pre-wrap font-sora leading-relaxed">{chunk.text}</p>
                 </div>
               </div>
             </div>

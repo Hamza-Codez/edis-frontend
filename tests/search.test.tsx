@@ -6,6 +6,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import SearchPage from '../app/search/page';
 import * as apiClient from '../lib/api-client';
+import type { SearchResponseChunk } from '../lib/types';
 
 // Mock the API client
 jest.mock('../lib/api-client');
@@ -40,26 +41,26 @@ describe('SearchPage', () => {
   });
 
   it('renders results in the order received and shows full precision scores', async () => {
-    const mockChunks = [
+    const mockChunks: SearchResponseChunk[] = [
       {
-        chunk_id: 1,
+        ordinal: 0,
         document_id: 'doc-1',
         filename: 'first.pdf',
         page_start: 1,
         page_end: 1,
-        snippet: 'This is the best match.',
+        text: 'This is the best match.',
         similarity: 0.8123456789,
         score: 0.033,
         vector_rank: 1,
         keyword_rank: 2,
       },
       {
-        chunk_id: 2,
+        ordinal: 1,
         document_id: 'doc-2',
         filename: 'second.docx',
         page_start: 3,
         page_end: 4,
-        snippet: 'This is a weaker match.',
+        text: 'This is a weaker match.',
         similarity: 0.1230000001,
         score: 0.015,
         vector_rank: null,
@@ -103,7 +104,7 @@ describe('SearchPage', () => {
     expect(screen.getByText('first.pdf (Page 1)')).toBeInTheDocument();
     expect(screen.getByText('second.docx (Page 3-4)')).toBeInTheDocument();
     
-    // Check snippet verbatim rendering
+    // Chunk text renders verbatim and untruncated
     expect(screen.getByText('This is the best match.')).toBeInTheDocument();
     expect(screen.getByText('This is a weaker match.')).toBeInTheDocument();
   });

@@ -16,7 +16,12 @@ function getCsrfToken(): string | null {
   return match ? match[2] : null;
 }
 
-export async function fetchApi(path: string, options: RequestInit = {}): Promise<unknown> {
+/**
+ * Callers name the response type from lib/types.ts, which re-exports the
+ * generated contract — so a backend rename breaks the build here rather than
+ * the page at runtime.
+ */
+export async function fetchApi<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
   const isMutation = options.method && !['GET', 'HEAD', 'OPTIONS'].includes(options.method.toUpperCase());
   
   const headers = new Headers(options.headers || {});
@@ -50,5 +55,5 @@ export async function fetchApi(path: string, options: RequestInit = {}): Promise
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 
-  return isJson ? response.json() : response.text();
+  return (isJson ? await response.json() : await response.text()) as T;
 }
