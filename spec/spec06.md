@@ -114,6 +114,14 @@ regains Query log for everyone and Users for admins.
 - Query detail shows `answer_json` verbatim, which is where an invented
   citation is visible on a rejected answer.
 
+**Second pass**
+
+Navigation and the query-log heading now render through `lib/labels.ts` rather
+than inlining `role === 'admin'`, so the sidebar cannot disagree with a page
+heading about what a role can see — a member is no longer shown "Every question
+asked in this workspace" above a list of only their own. See
+`spec07.md` §1 Q5.
+
 **Found while building**
 
 `jest.config.js` had no `moduleNameMapper` for the `@/` alias the app uses

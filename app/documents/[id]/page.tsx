@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getCurrentUser } from '@/lib/session';
 import DeleteButton from '@/app/components/delete-button';
 import ReindexButton from '@/app/components/reindex-button';
+import { canModifyDocument } from '@/lib/labels';
 import { File as FileIcon, Clock, HardDrive, FileText } from 'lucide-react';
 
 export const metadata = {
@@ -42,7 +43,8 @@ export default async function DocumentDetailPage({ params }: { params: { id: str
   }
 
   const user = await getCurrentUser();
-  const canDelete = user?.role === 'admin' || user?.id === doc.uploaded_by;
+  // Same rule the backend enforces, expressed once in lib/labels.
+  const canDelete = user ? canModifyDocument(user, doc.uploaded_by) : false;
   
   const isDocx = doc.content_type.includes('wordprocessingml');
   const unitName = isDocx ? 'Section' : 'Page';

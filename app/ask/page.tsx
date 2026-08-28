@@ -118,14 +118,14 @@ export default function AskPage() {
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="What does the policy say about retention periods?"
-            className="h-11 w-full rounded-md border border-border bg-surface pr-4 pl-9 text-text focus:border-accent focus:ring-2 focus:ring-accent focus:outline-none"
+            className="h-10 w-full rounded-md border border-border bg-surface pr-4 pl-9 text-text focus:border-accent focus:ring-2 focus:ring-accent focus:outline-none"
             disabled={isLoading}
           />
         </div>
         <button
           type="submit"
           disabled={isLoading || !question.trim()}
-          className="flex h-11 items-center gap-2 rounded-md bg-accent px-5 font-medium text-text-on-accent hover:bg-accent-hover focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-canvas focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-10 items-center gap-2 rounded-md bg-accent px-5 font-medium text-text-on-accent hover:bg-accent-hover focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-canvas focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         >
           <MessageCircleQuestion size={17} />
           {isLoading ? 'Working…' : 'Ask'}
@@ -191,7 +191,7 @@ export default function AskPage() {
                     onClick={() => reveal(citation.chunk_id)}
                     title={`${citation.filename} · ${pageLabel(citation)}`}
                     aria-label={`Show source ${chipNumber.get(citation.chunk_id)}`}
-                    className="mx-1 inline-flex h-5 min-w-5 items-center justify-center rounded border border-accent/20 bg-accent/10 px-1 align-text-top font-mono text-[11px] text-accent hover:bg-accent hover:text-text-on-accent focus:ring-2 focus:ring-accent focus:outline-none"
+                    className="relative mx-1 inline-flex h-5 min-w-5 items-center justify-center rounded border border-accent/20 bg-accent/10 px-1 align-text-top font-mono text-[11px] text-accent before:absolute before:-inset-2.5 before:content-[''] hover:bg-accent hover:text-text-on-accent focus:ring-2 focus:ring-accent focus:outline-none"
                   >
                     {chipNumber.get(citation.chunk_id)}
                   </button>

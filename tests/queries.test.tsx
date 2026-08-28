@@ -27,13 +27,23 @@ function row(outcome: string, id: number): QueryResponse {
   };
 }
 
+/** The page fetches rows and, separately, the viewer's role for the heading.
+ *  Routing by path keeps each test declaring only the rows it cares about. */
+function serve(rows: QueryResponse[], role: 'admin' | 'member' = 'admin') {
+  mockedFetchApi.mockImplementation((path: string) =>
+    path.startsWith('/auth/me')
+      ? Promise.resolve({ id: 'u1', email: 'a@b.c', role })
+      : Promise.resolve(rows)
+  );
+}
+
 describe('QueriesPage', () => {
-  beforeEach(() => mockedFetchApi.mockClear());
+  beforeEach(() => mockedFetchApi.mockReset());
 
   it('shows every outcome including the ones with a zero count', async () => {
     // A dashboard that hides an outcome at zero cannot show it rising, which is
     // the only thing these numbers are for.
-    mockedFetchApi.mockResolvedValueOnce([row('answered', 1)]);
+    serve([row('answered', 1)]);
 
     render(<QueriesPage />);
 
@@ -50,7 +60,7 @@ describe('QueriesPage', () => {
   it('does not present a refusal as a failure', async () => {
     // insufficient_context is the system working as designed. Styled as an
     // error it would read as a fault and invite someone to "fix" the gate.
-    mockedFetchApi.mockResolvedValueOnce([
+    serve([
       row('insufficient_context', 1),
       row('insufficient_context', 2),
     ]);
@@ -63,7 +73,7 @@ describe('QueriesPage', () => {
   });
 
   it('marks an ungrounded rejection as alarming when it happens', async () => {
-    mockedFetchApi.mockResolvedValueOnce([row('ungrounded_rejected', 1)]);
+    serve([row('ungrounded_rejected', 1)]);
 
     render(<QueriesPage />);
 
@@ -74,7 +84,7 @@ describe('QueriesPage', () => {
 
   it('says the window the mix was computed over', async () => {
     // A rate computed from a capped window and presented as "the" rate is a lie.
-    mockedFetchApi.mockResolvedValueOnce([row('answered', 1), row('answered', 2)]);
+    serve([row('answered', 1), row('answered', 2)]);
 
     render(<QueriesPage />);
 
@@ -82,7 +92,7 @@ describe('QueriesPage', () => {
   });
 
   it('distinguishes an empty log from an empty filter', async () => {
-    mockedFetchApi.mockResolvedValueOnce([]);
+    serve([]);
 
     render(<QueriesPage />);
 

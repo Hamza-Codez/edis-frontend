@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { fetchApi } from '@/lib/api-client';
-import type { QueryResponse } from '@/lib/types';
+import type { CurrentUser, QueryResponse } from '@/lib/types';
+import { queryScopeLabel } from '@/lib/labels';
 
 /** How many rows the mix is computed over. Labelled on screen, because a rate
  *  computed from a capped window and presented as "the" rate is a lie. */
@@ -47,6 +48,7 @@ const OUTCOMES: { key: Outcome; label: string; meaning: string; alarming: boolea
 
 export default function QueriesPage() {
   const [rows, setRows] = useState<QueryResponse[] | null>(null);
+  const [role, setRole] = useState<CurrentUser['role'] | null>(null);
   const [filter, setFilter] = useState<Outcome | 'all'>('all');
   const [error, setError] = useState<string | null>(null);
 
@@ -57,6 +59,12 @@ export default function QueriesPage() {
       .catch((e: unknown) =>
         !cancelled && setError(e instanceof Error ? e.message : 'Could not load queries.')
       );
+    // The backend already scopes the rows; this only decides how the heading
+    // describes them, so a member is never told they are seeing everything.
+    fetchApi<CurrentUser>('/auth/me')
+      .then((me) => !cancelled && setRole(me.role))
+      .catch(() => undefined);
+
     return () => {
       cancelled = true;
     };
@@ -78,7 +86,8 @@ export default function QueriesPage() {
       <header className="space-y-1">
         <h1 className="font-space-grotesk text-2xl font-bold text-text">Query log</h1>
         <p className="text-sm text-text-muted">
-          Every question, what the system did with it, and why. Append-only.
+          {role ? queryScopeLabel(role) : 'Your questions.'} What the system did with
+          each, and why. Append-only.
         </p>
       </header>
 

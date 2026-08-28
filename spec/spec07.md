@@ -113,6 +113,37 @@ loudly; an un-replaced one drifts silently.
 radius and shadow rules, because those are the ones that actually broke. Six
 assertions, run in the normal suite.
 
+### Second pass — the rules a grep could not see
+
+The first audit caught what static patterns reach. Three more required reading
+the document properly:
+
+- **§1 Q3 density.** Two controls on the Ask screen were `h-11` (44px) against a
+  stated 36–40px. Both are `h-10` now. The remaining `h-14` is the header bar,
+  which is chrome rather than a control.
+- **§3 touch targets.** Citation chips render at 20×20px, well under the stated
+  40×40 minimum. The chip stays visually small — it sits inline in a sentence and
+  cannot grow — and the tappable region is expanded with an inset pseudo-element,
+  so the hit area meets the rule without disturbing line spacing.
+- **§1 Q5 role-based strings.** There was no label module; `role === 'admin'` was
+  inlined in the layout and the document detail page. `lib/labels.ts` now owns
+  navigation, the query-log scope sentence and the document-modify rule. It is
+  marked UX-only in its own header, because the backend answering 404 is the
+  actual guard and nothing here may become the only one.
+
+**§5.2 accessible names** is implemented in `tests/accessible-names.test.tsx`,
+separately from the static checks because a name is computed from the rendered
+DOM. It caught the case it exists for: a citation chip renders as a bare digit
+and announces as "1" without its `aria-label`.
+
+### Divergence: status token names
+
+§2 names the status colours `on-track`, `at-risk`, `overdue`. They ship as
+`success`, `warning`, `danger`. That vocabulary comes from a project tracker;
+EDIS has no schedule, nothing is due, and a document is not overdue. The
+semantic names are the same three values under names that describe what this
+product actually reports. Recorded rather than silently renamed back.
+
 ### Open interpretation
 
 §2 reserves the accent colour "exclusively for the primary call to action". The

@@ -3,6 +3,7 @@ import { Space_Grotesk, Sora } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
+import { navigationFor } from "@/lib/labels";
 import { SignOutButton } from "./components/sign-out-button";
 
 const spaceGrotesk = Space_Grotesk({
@@ -47,14 +48,18 @@ export default async function RootLayout({
             <div className="flex flex-1 overflow-hidden">
               <nav className="w-64 border-r border-border bg-structure/50 shrink-0 flex flex-col justify-between">
                 <div className="p-4 space-y-1">
-                  <Link href="/" className="block px-3 py-2 text-sm text-text hover:bg-canvas font-medium">Dashboard</Link>
-                  <Link href="/ask" className="block px-3 py-2 text-sm text-text hover:bg-canvas font-medium">Ask</Link>
-                  <Link href="/documents" className="block px-3 py-2 text-sm text-text hover:bg-canvas font-medium">Documents</Link>
-                  <Link href="/search" className="block px-3 py-2 text-sm text-text hover:bg-canvas font-medium">Search</Link>
-                  <Link href="/queries" className="block px-3 py-2 text-sm text-text hover:bg-canvas font-medium">Query log</Link>
-                  {user.role === 'admin' && (
-                    <Link href="/admin/users" className="block px-3 py-2 text-sm text-text-muted hover:bg-canvas">Users</Link>
-                  )}
+                  {/* Rendered from lib/labels, so the sidebar cannot disagree
+                      with a page heading about what a role can see. UX only —
+                      the backend answers 404 regardless. */}
+                  {navigationFor(user.role).map(({ href, label }) => (
+                    <Link
+                      key={href}
+                      href={href}
+                      className="block px-3 py-2 text-sm text-text hover:bg-canvas font-medium"
+                    >
+                      {label}
+                    </Link>
+                  ))}
                 </div>
                 <div className="p-4 border-t border-border">
                   <SignOutButton />
