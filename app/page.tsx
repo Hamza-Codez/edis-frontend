@@ -3,7 +3,7 @@ import { FileText, MessageCircleQuestion, Search, UploadCloud } from 'lucide-rea
 import { getCurrentUser } from '@/lib/session';
 import { CorpusSummary } from './components/corpus-summary';
 
-export const metadata = { title: 'EDIS' };
+export const metadata = { title: 'EDIS DocSense' };
 
 const ACTIONS = [
   {

@@ -6,12 +6,13 @@ import DeleteButton from '@/app/components/delete-button';
 import ReindexButton from '@/app/components/reindex-button';
 import { canModifyDocument } from '@/lib/labels';
 import { File as FileIcon, Clock, HardDrive, FileText } from 'lucide-react';
+import type { DocumentDetailResponse } from '@/lib/types';
 
 export const metadata = {
-  title: 'Document Details - EDIS',
+  title: 'Document Details - EDIS DocSense',
 };
 
-async function getDocument(id: string) {
+async function getDocument(id: string): Promise<DocumentDetailResponse | null> {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get('session');
   

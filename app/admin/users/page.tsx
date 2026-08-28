@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { UserPlus, Eye, EyeOff } from 'lucide-react';
 import { fetchApi } from '@/lib/api-client';
+import { Select } from '../../components/ui/select';
 import type { ManagedUser } from '@/lib/types';
 
 export default function AdminUsersPage() {
@@ -133,14 +134,14 @@ export default function AdminUsersPage() {
           </button>
         </Labelled>
         <Labelled label="Role">
-          <select
+          <Select
             value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="h-10 rounded-md border border-border bg-canvas px-3 text-text focus:ring-2 focus:ring-accent focus:outline-none"
-          >
-            <option value="member">member</option>
-            <option value="admin">admin</option>
-          </select>
+            onChange={setRole}
+            options={[
+              { value: 'member', label: 'member' },
+              { value: 'admin', label: 'admin' },
+            ]}
+          />
         </Labelled>
         <button
           type="submit"
@@ -153,7 +154,7 @@ export default function AdminUsersPage() {
 
       <div className="overflow-hidden rounded-md border border-border bg-surface">
         <table className="w-full text-sm">
-          <thead className="border-b border-chrome-border bg-chrome text-left text-xs text-chrome-text">
+          <thead className="border-b border-accent bg-accent text-left text-xs text-text-on-accent">
             <tr>
               <th className="px-4 py-2 font-medium">Email</th>
               <th className="px-4 py-2 font-medium">Role</th>

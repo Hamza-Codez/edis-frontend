@@ -5,13 +5,13 @@ import { fetchApi } from '@/lib/api-client';
 import type { QueryResponse } from '@/lib/types';
 import { Panel } from './ui/panel';
 
-export function RecentQuestions({ onSelect }: { onSelect?: (q: string) => void }) {
+export function RecentQuestions({ onSelect }: { onSelect?: (q: QueryResponse) => void }) {
   const [queries, setQueries] = useState<QueryResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    fetchApi<QueryResponse[]>('/queries?limit=5')
+    fetchApi<QueryResponse[]>('/queries?limit=4')
       .then((data) => {
         if (!cancelled) setQueries(data);
       })
@@ -47,7 +47,7 @@ export function RecentQuestions({ onSelect }: { onSelect?: (q: string) => void }
           <button
             key={q.id}
             type="button"
-            onClick={() => onSelect?.(q.question)}
+            onClick={() => onSelect?.(q)}
             className="w-full px-4 py-3 text-left transition-colors hover:bg-structure/50 focus:bg-structure/50 focus:outline-none"
           >
             <p className="line-clamp-2 text-sm text-text">{q.question}</p>

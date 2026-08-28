@@ -26,12 +26,12 @@ export function Panel({
   return (
     <section className={`overflow-hidden rounded-md border border-border bg-surface ${className}`}>
       {(title || action) && (
-        <header className="flex items-baseline justify-between gap-3 border-b border-border bg-structure px-4 py-2.5">
+        <header className="flex items-baseline justify-between gap-3 border-b border-accent bg-accent px-4 py-2.5">
           <div className="min-w-0">
             {title && (
-              <h2 className="font-space-grotesk text-sm font-bold text-text">{title}</h2>
+              <h2 className="font-space-grotesk text-sm font-bold text-text-on-accent">{title}</h2>
             )}
-            {hint && <p className="mt-0.5 text-xs leading-snug text-text-muted">{hint}</p>}
+            {hint && <p className="mt-0.5 text-xs leading-snug text-text-on-accent/80">{hint}</p>}
           </div>
           {action && <div className="shrink-0">{action}</div>}
         </header>

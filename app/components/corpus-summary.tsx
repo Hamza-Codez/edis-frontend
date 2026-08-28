@@ -41,18 +41,37 @@ export function CorpusSummary({ layout = 'grid' }: { layout?: 'grid' | 'stack' }
     );
   }
 
-  const Wrapper = layout === 'stack' ? StatStack : StatGrid;
+  if (layout === 'stack') {
+    return (
+      <StatStack tone="surface">
+        <Stat label="Searchable" value={counts.indexed} hint="ready to answer from" />
+        <Stat label="Processing" value={counts.processing} hint="not yet searchable" />
+        <Stat
+          label="Failed"
+          value={counts.failed}
+          hint={counts.failed > 0 ? 'see Documents for why' : 'none'}
+          alarming={counts.failed > 0}
+        />
+      </StatStack>
+    );
+  }
 
   return (
-    <Wrapper tone="ink">
-      <Stat label="Searchable" value={counts.indexed} hint="ready to answer from" />
-      <Stat label="Processing" value={counts.processing} hint="not yet searchable" />
-      <Stat
-        label="Failed"
-        value={counts.failed}
-        hint={counts.failed > 0 ? 'see Documents for why' : 'none'}
-        alarming={counts.failed > 0}
-      />
-    </Wrapper>
+    <div className="flex items-center justify-around rounded-md bg-gradient-to-r from-black via-zinc-900 to-zinc-700 border border-border py-3 px-2 shadow-md">
+      <div className="text-center px-3 border-r border-zinc-600 flex-1">
+        <div className="text-2xl font-space-grotesk font-bold text-white tabular-nums leading-none mb-1">{counts.indexed}</div>
+        <div className="text-xs font-medium text-zinc-400 uppercase tracking-wide">Searchable</div>
+      </div>
+      <div className="text-center px-3 border-r border-zinc-600 flex-1">
+        <div className="text-2xl font-space-grotesk font-bold text-white tabular-nums leading-none mb-1">{counts.processing}</div>
+        <div className="text-xs font-medium text-zinc-400 uppercase tracking-wide">Processing</div>
+      </div>
+      <div className="text-center px-3 flex-1">
+        <div className={`text-2xl font-space-grotesk font-bold tabular-nums leading-none mb-1 ${counts.failed > 0 ? 'text-red-400' : 'text-white'}`}>
+          {counts.failed}
+        </div>
+        <div className="text-xs font-medium text-zinc-400 uppercase tracking-wide">Failed</div>
+      </div>
+    </div>
   );
 }

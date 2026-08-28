@@ -1,12 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { Search, ArrowLeft } from 'lucide-react';
 import { fetchApi } from '../../lib/api-client';
 import type { SearchMode, SearchResponse, SearchResponseChunk } from '../../lib/types';
 import { Panel } from '../components/ui/panel';
 import { SegmentControl } from '../components/ui/segment-control';
+import { Accordion, AccordionItem } from '../components/ui/accordion';
+
+interface SavedSearch {
+  id: number;
+  question: string;
+  mode: SearchMode;
+  limit: number;
+  timestamp: string;
+  results: { chunks: SearchResponseChunk[], min_similarity: number };
+}
 
 const SEARCH_MODES = ['vector', 'keyword', 'hybrid'] as const;
 
@@ -22,9 +32,40 @@ export default function SearchPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSearch = async (e?: React.FormEvent) => {
+  const [recentSearches, setRecentSearches] = useState<SavedSearch[]>([]);
+
+  const loadHistory = async () => {
+    try {
+      const data = await fetchApi<SavedSearch[]>('/search/history');
+      setRecentSearches(data);
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
+
+  const saveRecentSearch = (q: string, m: SearchMode, l: string, res: SearchResponseChunk[]) => {
+    // We now just reload the history from the server to ensure consistency.
+    // POST /search already saves it.
+    loadHistory();
+  };
+
+  const handleSearch = async (e?: React.FormEvent, overrideParams?: { q: string, m: SearchMode, l: string }) => {
     if (e) e.preventDefault();
-    if (!question.trim()) return;
+    
+    const searchQ = overrideParams?.q ?? question;
+    const searchM = overrideParams?.m ?? mode;
+    const searchL = overrideParams?.l ?? limit;
+
+    if (!searchQ.trim()) return;
+
+    // Prevent searching if it's already exactly in recent searches
+    if (recentSearches.some(s => s.question === searchQ && s.mode === searchM && s.limit === parseInt(searchL, 10))) {
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
@@ -36,7 +77,7 @@ export default function SearchPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ question, mode, limit: parseInt(limit, 10) }),
+        body: JSON.stringify({ question: searchQ, mode: searchM, limit: parseInt(searchL, 10) }),
       });
       
       setMinSimilarity(data.min_similarity);
@@ -44,6 +85,7 @@ export default function SearchPage() {
       // Spec08: The frontend reads the min_similarity field from the response and filters the chunks array in memory
       const filteredChunks = data.chunks.filter(chunk => chunk.similarity >= data.min_similarity);
       setResults(filteredChunks);
+      saveRecentSearch(searchQ, searchM, searchL, filteredChunks);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred during search.');
       setResults(null);
@@ -61,6 +103,18 @@ export default function SearchPage() {
     if (delta < 0) return `${delta}`;
     return '—';
   };
+
+  const groupedSearches = useMemo(() => {
+    return Array.from(
+      recentSearches.reduce((map, search) => {
+        if (!map.has(search.question)) {
+          map.set(search.question, []);
+        }
+        map.get(search.question)!.push(search);
+        return map;
+      }, new Map<string, SavedSearch[]>())
+    ).map(([question, searches]) => ({ question, searches }));
+  }, [recentSearches]);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -116,7 +170,7 @@ export default function SearchPage() {
 
               <button
                 type="submit"
-                disabled={isLoading || !question.trim()}
+                disabled={isLoading || !question.trim() || recentSearches.some(s => s.question === question && s.mode === mode && s.limit === parseInt(limit, 10))}
                 className="bg-accent text-text-on-accent rounded-sm px-4 py-2 text-sm font-medium transition-colors hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 h-10 w-full mt-2"
               >
                 <Search size={18} />
@@ -130,6 +184,66 @@ export default function SearchPage() {
           {error && (
             <div className="p-4 bg-danger/10 text-danger border border-danger/20 rounded-md">
               {error}
+            </div>
+          )}
+
+          {results !== null && !isLoading && (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setResults(null);
+                  setQuestion('');
+                }}
+                className="text-sm font-medium text-accent hover:underline flex items-center gap-1.5"
+              >
+                <ArrowLeft size={16} /> Back to recents
+              </button>
+            </div>
+          )}
+
+          {results === null && recentSearches.length > 0 && !isLoading && (
+            <div className="space-y-4">
+              <Panel title="Recent Searches" bodyClassName="">
+                <Accordion className="border-t-0">
+                  {groupedSearches.map((group) => (
+                    <AccordionItem
+                      key={group.question}
+                      title={group.question}
+                      subtitle={`${group.searches.length} variant${group.searches.length > 1 ? 's' : ''} saved`}
+                    >
+                      <div className="space-y-3">
+                        {group.searches.map((s) => (
+                          <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 bg-canvas border border-border p-3 rounded-sm">
+                            <span className="text-sm text-text-muted">
+                              <span className="font-medium text-text">{s.mode}</span> • limit {s.limit} • {new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setQuestion(s.question);
+                                setMode(s.mode);
+                                setLimit(s.limit.toString());
+                                if (s.results && s.results.chunks) {
+                                  setResults(s.results.chunks);
+                                  setMinSimilarity(s.results.min_similarity);
+                                  setPrevResults(null);
+                                } else {
+                                  // Fallback for legacy searches that don't have results cached
+                                  handleSearch(undefined, { q: s.question, m: s.mode, l: s.limit.toString() });
+                                }
+                              }}
+                              className="text-sm bg-accent text-text-on-accent font-medium hover:bg-accent-hover px-4 py-1.5 rounded-sm transition-colors"
+                            >
+                              View
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </Panel>
             </div>
           )}
 

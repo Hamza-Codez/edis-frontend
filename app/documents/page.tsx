@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import DocumentList from '@/app/components/document-list';
 
 export const metadata = {
-  title: 'Documents - EDIS',
+  title: 'Documents - EDIS DocSense',
 };
 
 export default function DocumentsPage() {

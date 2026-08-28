@@ -21,6 +21,7 @@ export type UserUpdate = Schemas['UserUpdate'];
 
 // Documents
 export type DocumentResponse = Schemas['DocumentResponse'];
+export type DocumentDetailResponse = Schemas['DocumentDetailResponse'];
 export type DocumentStatus = DocumentResponse['status'];
 
 // Retrieval

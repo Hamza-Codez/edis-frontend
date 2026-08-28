@@ -5,6 +5,8 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
 import { navigationFor } from "@/lib/labels";
 import { SignOutButton } from "./components/sign-out-button";
+import { Navigation } from "./components/navigation";
+import { FileText } from "lucide-react";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -17,7 +19,7 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
-  title: "EDIS",
+  title: "EDIS DocSense",
   description: "Enterprise Document Intelligence System",
 };
 
@@ -39,7 +41,10 @@ export default async function RootLayout({
           <div className="flex h-full flex-col">
             <header className="chrome-scope h-14 bg-chrome text-chrome-text flex items-center justify-between px-4 border-b border-chrome-border shrink-0">
               <Link href="/" className="font-space-grotesk font-bold text-xl tracking-tight text-chrome-text flex items-center gap-2">
-                EDIS
+                <span className="bg-surface rounded-full rounded-br-none p-1 shadow-sm flex items-center justify-center">
+                  <FileText className="w-4 h-4 text-accent" />
+                </span>
+                EDIS DocSense
               </Link>
               <div className="text-sm text-chrome-text-muted">
                 {user.email} <span className="uppercase text-xs ml-2 bg-chrome-raised text-chrome-text px-1.5 py-0.5 rounded-sm">{user.role}</span>
@@ -51,15 +56,7 @@ export default async function RootLayout({
                   {/* Rendered from lib/labels, so the sidebar cannot disagree
                       with a page heading about what a role can see. UX only —
                       the backend answers 404 regardless. */}
-                  {navigationFor(user.role).map(({ href, label }) => (
-                    <Link
-                      key={href}
-                      href={href}
-                      className="block px-3 py-2 text-sm text-chrome-text hover:bg-chrome-hover rounded-sm font-medium"
-                    >
-                      {label}
-                    </Link>
-                  ))}
+                  <Navigation items={navigationFor(user.role)} />
                 </div>
                 <div className="p-4 border-t border-chrome-border">
                   <SignOutButton />

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { fetchApi } from "@/lib/api-client";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, FileText } from "lucide-react";
+import { LoginBackground } from "./background";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -39,9 +40,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex h-full items-center justify-center bg-canvas">
-      <div className="w-full max-w-md bg-surface border border-border p-8">
-        <h1 className="font-space-grotesk font-semibold text-2xl text-heading mb-6">Sign In</h1>
+    <div className="flex h-full items-center justify-center bg-canvas relative">
+      <LoginBackground />
+      <div className="w-full max-w-md bg-surface border border-border p-8 relative z-10 shadow-lg">
+        <h1 className="font-space-grotesk font-semibold text-2xl text-heading mb-6 flex items-center gap-2">
+          <span className="bg-accent rounded-full rounded-br-none p-1.5 shadow-sm flex items-center justify-center">
+            <FileText className="w-5 h-5 text-surface" />
+          </span>
+          Sign In to EDIS DocSense
+        </h1>
         
         {error && (
           <div className="mb-4 bg-danger/10 text-danger px-4 py-2 text-sm border border-danger/20">

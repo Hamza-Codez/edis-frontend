@@ -161,6 +161,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/search/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Search History */
+        get: operations["get_search_history_search_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/qa/ask": {
         parameters: {
             query?: never;
@@ -172,6 +189,23 @@ export interface paths {
         put?: never;
         /** Ask */
         post: operations["ask_qa_ask_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/qa/ask/{query_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Historical Ask */
+        get: operations["get_historical_ask_qa_ask__query_id__get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -319,10 +353,65 @@ export interface components {
             /** Citations */
             citations: components["schemas"]["CitationChunk"][];
         };
+        /** DocumentDetailResponse */
+        DocumentDetailResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Filename */
+            filename: string;
+            /** Content Type */
+            content_type: string;
+            /** Byte Size */
+            byte_size: number;
+            /** Content Sha256 */
+            content_sha256: string;
+            /** Page Count */
+            page_count: number | null;
+            status: components["schemas"]["DocumentStatus"];
+            /** Status Detail */
+            status_detail: string | null;
+            /**
+             * Uploaded By
+             * Format: uuid
+             */
+            uploaded_by: string;
+            /** Processing Started At */
+            processing_started_at: string | null;
+            /** Indexed At */
+            indexed_at: string | null;
+            /** Chunk Count */
+            chunk_count: number;
+            /** Embedding Model */
+            embedding_model: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Pages */
+            pages?: components["schemas"]["DocumentPageResponse"][] | null;
+        };
         /** DocumentListResponse */
         DocumentListResponse: {
             /** Items */
             items: components["schemas"]["DocumentResponse"][];
+        };
+        /** DocumentPageResponse */
+        DocumentPageResponse: {
+            /** Id */
+            id: number;
+            /** Page Number */
+            page_number: number;
+            /** Text */
+            text: string;
         };
         /** DocumentResponse */
         DocumentResponse: {
@@ -442,6 +531,23 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+        };
+        /** SavedSearch */
+        SavedSearch: {
+            /** Id */
+            id: number;
+            /** Question */
+            question: string;
+            /** Mode */
+            mode: string;
+            /** Limit */
+            limit: number;
+            results: components["schemas"]["SearchResponse"];
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp: string;
         };
         /** SearchRequest */
         SearchRequest: {
@@ -881,7 +987,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DocumentResponse"];
+                    "application/json": components["schemas"]["DocumentDetailResponse"];
                 };
             };
             /** @description Validation Error */
@@ -997,6 +1103,38 @@ export interface operations {
             };
         };
     };
+    get_search_history_search_history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                csrf_token?: string | null;
+                session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedSearch"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     ask_qa_ask_post: {
         parameters: {
             query?: never;
@@ -1012,6 +1150,40 @@ export interface operations {
                 "application/json": components["schemas"]["AskRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AskResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_historical_ask_qa_ask__query_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                query_id: number;
+            };
+            cookie?: {
+                csrf_token?: string | null;
+                session?: string | null;
+            };
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {

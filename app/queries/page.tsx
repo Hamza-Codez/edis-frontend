@@ -16,6 +16,8 @@ export default function QueriesPage() {
   const [role, setRole] = useState<CurrentUser['role'] | null>(null);
   const [filter, setFilter] = useState<OutcomeKey | 'all'>('all');
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     let cancelled = false;
@@ -46,6 +48,17 @@ export default function QueriesPage() {
     [rows, filter]
   );
 
+  const paginatedRows = useMemo(() => {
+    return visible.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  }, [visible, page]);
+
+  const totalPages = Math.ceil(visible.length / itemsPerPage);
+
+  const handleFilter = (newFilter: OutcomeKey | 'all') => {
+    setFilter(newFilter);
+    setPage(1);
+  };
+
   return (
     <div className="mx-auto max-w-5xl space-y-8 pb-16">
       <header className="space-y-1">
@@ -72,7 +85,7 @@ export default function QueriesPage() {
                 key={key}
                 type="button"
                 data-testid={`tile-${key}`}
-                onClick={() => setFilter(filter === key ? 'all' : key)}
+                onClick={() => handleFilter(filter === key ? 'all' : key)}
                 className={`card-maroon rounded-md border p-4 text-left focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-canvas focus:outline-none ${
                   filter === key ? 'border-chrome-text' : 'border-card-border hover:border-chrome-text-muted'
                 }`}
@@ -98,7 +111,7 @@ export default function QueriesPage() {
 
       <section className="overflow-hidden rounded-md border border-border bg-surface">
         <table className="w-full text-sm">
-          <thead className="border-b border-chrome-border bg-chrome text-left text-xs text-chrome-text">
+          <thead className="border-b border-accent bg-accent text-left text-xs text-text-on-accent">
             <tr>
               <th className="px-4 py-2 font-medium">Question</th>
               <th className="px-4 py-2 font-medium">Outcome</th>
@@ -122,7 +135,7 @@ export default function QueriesPage() {
                 </td>
               </tr>
             )}
-            {visible.map((row) => (
+            {paginatedRows.map((row) => (
               <tr key={row.id} className="hover:bg-structure/60">
                 <td className="max-w-md truncate px-4 py-2">
                   <Link href={`/queries/${row.id}`} className="text-accent hover:underline">
@@ -148,6 +161,30 @@ export default function QueriesPage() {
           </tbody>
         </table>
       </section>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-2">
+          <p className="text-sm text-text-muted">
+            Showing {(page - 1) * itemsPerPage + 1} to {Math.min(page * itemsPerPage, visible.length)} of {visible.length} queries
+          </p>
+          <div className="flex gap-2">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              className="rounded-md border border-border bg-surface px-3 py-1 text-sm text-text hover:bg-structure focus:ring-2 focus:ring-accent focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              className="rounded-md border border-border bg-surface px-3 py-1 text-sm text-text hover:bg-structure focus:ring-2 focus:ring-accent focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

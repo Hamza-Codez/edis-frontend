@@ -102,56 +102,28 @@ function AskFormContent() {
     <div className="mx-auto max-w-7xl pb-16">
       <div className="grid grid-cols-12 gap-6 items-start">
         <div className="col-span-4 sticky top-6 space-y-6">
-          {isIdle && (
-            <>
-              <Panel title="Scope">
-                <CorpusSummary layout="stack" />
-              </Panel>
-              <Panel title="Recent">
-                <RecentQuestions />
-              </Panel>
-            </>
-          )}
-
-          {result && (
-            <Panel title="Receipt">
-              <div className="space-y-4">
-                <div>
-                  <div className="text-xs text-text-muted uppercase tracking-wider font-semibold mb-1">Outcome</div>
-                  <div className="text-sm font-medium text-text">
-                    {result.outcome === 'answered' ? 'Answered' : 'No supported answer'}
-                  </div>
-                </div>
-                
-                <div>
-                  <div className="text-xs text-text-muted uppercase tracking-wider font-semibold mb-1">Log Entry</div>
-                  <Link href={`/queries/${result.query_id}`} className="text-sm text-accent hover:underline flex items-center gap-1">
-                    Query #{result.query_id} →
-                  </Link>
-                </div>
-
-                {evidence.length > 0 && (
-                  <div>
-                    <div className="text-xs text-text-muted uppercase tracking-wider font-semibold mb-2">Sources ({evidence.length})</div>
-                    <div className="flex flex-wrap gap-2">
-                      {evidence.map(citation => (
-                        <button
-                          key={citation.chunk_id}
-                          type="button"
-                          onClick={() => reveal(citation.chunk_id)}
-                          title={`${citation.filename} · ${pageLabel(citation)}`}
-                          aria-label={`Jump to source ${chipNumber.get(citation.chunk_id)}`}
-                          className="inline-flex h-6 min-w-6 items-center justify-center rounded-sm border border-accent/20 bg-accent/10 px-2 font-mono text-[12px] text-accent hover:bg-accent hover:text-text-on-accent focus:ring-2 focus:ring-accent focus:outline-none transition-colors"
-                        >
-                          {chipNumber.get(citation.chunk_id)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </Panel>
-          )}
+          <Panel title="Scope" bodyClassName="p-0">
+            <CorpusSummary layout="grid" />
+          </Panel>
+          <RecentQuestions onSelect={async (q) => {
+            const questionText = typeof q === 'string' ? q : q?.question || '';
+            setQuestion(questionText);
+            setIsLoading(true);
+            setError(null);
+            setResult(null);
+            setExpanded(new Set());
+            setActiveChunkId(null);
+            setAsked(questionText);
+            
+            try {
+              const data = await fetchApi<AskResponse>(`/qa/ask/${q.id}`);
+              setResult(data);
+            } catch (err: unknown) {
+              setError(err instanceof Error ? err.message : 'Failed to load past question.');
+            } finally {
+              setIsLoading(false);
+            }
+          }} />
         </div>
 
         <div className="col-span-8 space-y-8">
@@ -251,15 +223,48 @@ function AskFormContent() {
                 ))}
               </section>
 
-              <section className="space-y-3">
-                <div className="flex items-baseline justify-between">
-                  <h2 className="font-space-grotesk font-bold text-text">Sources</h2>
-                  <span className="text-xs text-text-muted">
-                    {evidence.length} passage{evidence.length === 1 ? '' : 's'} · click a number above
-                    to jump
-                  </span>
+              <div className="flex flex-wrap items-center justify-between gap-4 rounded-md border border-border bg-structure p-4">
+                <div className="flex gap-6">
+                  <div>
+                    <div className="text-[10px] text-text-muted uppercase tracking-wider font-semibold mb-0.5">Outcome</div>
+                    <div className="text-xs font-medium text-text">
+                      {result.outcome === 'answered' ? 'Answered' : 'No supported answer'}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-[10px] text-text-muted uppercase tracking-wider font-semibold mb-0.5">Log Entry</div>
+                    <Link href={`/queries/${result.query_id}`} className="text-xs text-accent hover:underline flex items-center gap-1">
+                      Query #{result.query_id} →
+                    </Link>
+                  </div>
                 </div>
 
+                {evidence.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-text-muted uppercase tracking-wider font-semibold">Jump to ({evidence.length}):</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {evidence.map(citation => (
+                        <button
+                          key={citation.chunk_id}
+                          type="button"
+                          onClick={() => reveal(citation.chunk_id)}
+                          title={`${citation.filename} · ${pageLabel(citation)}`}
+                          aria-label={`Jump to source ${chipNumber.get(citation.chunk_id)}`}
+                          className="inline-flex h-5 min-w-5 items-center justify-center rounded-sm border border-accent/20 bg-accent/10 px-1 font-mono text-[11px] text-accent hover:bg-accent hover:text-text-on-accent focus:ring-2 focus:ring-accent focus:outline-none transition-colors"
+                        >
+                          {chipNumber.get(citation.chunk_id)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <section className="space-y-4">
+                <h3 className="font-space-grotesk text-lg font-semibold text-heading">
+                  Source Passages
+                </h3>
                 {evidence.map((citation) => {
                   const isOpen = expanded.has(citation.chunk_id);
                   return (
