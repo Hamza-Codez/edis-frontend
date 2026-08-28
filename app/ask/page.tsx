@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { MessageCircleQuestion } from 'lucide-react';
+import { ChevronDown, ChevronRight, MessageCircleQuestion, Search } from 'lucide-react';
 import { fetchApi } from '../../lib/api-client';
 import type { AskResponse, CitationChunk } from '../../lib/types';
 
@@ -11,8 +11,8 @@ import type { AskResponse, CitationChunk } from '../../lib/types';
  *
  * The backend returns full citation objects per claim, not the opaque indices
  * it gave the model — mapping back to real rows is a server concern. So the
- * chip numbering shown here is built from the response, and the same number
- * always points at the same evidence entry.
+ * numbering shown here is derived from the response, and the same number always
+ * points at the same evidence entry.
  */
 function buildEvidence(response: AskResponse): CitationChunk[] {
   const seen = new Map<number, CitationChunk>();
@@ -26,8 +26,15 @@ function buildEvidence(response: AskResponse): CitationChunk[] {
 
 function pageLabel(citation: CitationChunk): string {
   return citation.page_start === citation.page_end
-    ? `Page ${citation.page_start}`
-    : `Pages ${citation.page_start}–${citation.page_end}`;
+    ? `p. ${citation.page_start}`
+    : `pp. ${citation.page_start}–${citation.page_end}`;
+}
+
+/** Extracted PDF text carries hard line breaks mid-sentence. Preserving them in
+ *  a preview produces a tall ragged column that reads as noise; the expanded
+ *  view keeps them, because that is the passage as stored. */
+function flatten(text: string): string {
+  return text.replace(/\s+/g, ' ').trim();
 }
 
 export default function AskPage() {
@@ -36,7 +43,9 @@ export default function AskPage() {
   const [result, setResult] = useState<AskResponse | null>(null);
   const [asked, setAsked] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const [activeChunkId, setActiveChunkId] = useState<number | null>(null);
+  const entryRefs = useRef<Map<number, HTMLDivElement | null>>(new Map());
 
   const evidence = useMemo(() => (result ? buildEvidence(result) : []), [result]);
   const chipNumber = useMemo(() => {
@@ -45,6 +54,22 @@ export default function AskPage() {
     return map;
   }, [evidence]);
 
+  const toggle = (chunkId: number) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(chunkId)) next.delete(chunkId);
+      else next.add(chunkId);
+      return next;
+    });
+
+  const reveal = (chunkId: number) => {
+    setActiveChunkId(chunkId);
+    setExpanded((prev) => new Set(prev).add(chunkId));
+    // Optional call: scrollIntoView is absent in jsdom and in some embedded
+    // webviews, and revealing the passage must not depend on scrolling to it.
+    entryRefs.current.get(chunkId)?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+  };
+
   const handleAsk = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!question.trim() || isLoading) return;
@@ -52,16 +77,18 @@ export default function AskPage() {
     setIsLoading(true);
     setError(null);
     setResult(null);
+    setExpanded(new Set());
     setActiveChunkId(null);
     setAsked(question);
 
     try {
-      const data = await fetchApi<AskResponse>('/qa/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question }),
-      });
-      setResult(data);
+      setResult(
+        await fetchApi<AskResponse>('/qa/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question }),
+        })
+      );
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'The question could not be answered.');
     } finally {
@@ -70,144 +97,193 @@ export default function AskPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex flex-col space-y-2">
+    <div className="mx-auto max-w-4xl space-y-8 pb-16">
+      <header className="space-y-1">
         <h1 className="font-space-grotesk text-2xl font-bold text-text">Ask</h1>
-        <p className="text-text-muted">
-          Answers are assembled only from indexed documents. Every claim carries the chunk it came
-          from.
+        <p className="text-sm text-text-muted">
+          Answers come only from indexed documents. Every sentence is numbered to the passage it
+          came from.
         </p>
-      </div>
+      </header>
 
-      <form
-        onSubmit={handleAsk}
-        className="flex gap-4 p-4 bg-structure border border-border rounded-lg shadow-sm items-end"
-      >
-        <div className="flex-1">
-          <label htmlFor="question" className="block text-sm font-medium text-text-muted mb-1">
-            Question
-          </label>
+      <form onSubmit={handleAsk} className="flex gap-3">
+        <div className="relative flex-1">
+          <Search
+            size={16}
+            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-text-muted"
+          />
           <input
             id="question"
             type="text"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="What does the policy say about retention periods?"
-            className="w-full bg-canvas text-text border border-border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="h-11 w-full rounded-md border border-border bg-surface pr-4 pl-9 text-text focus:border-accent focus:ring-2 focus:ring-accent focus:outline-none"
             disabled={isLoading}
           />
         </div>
         <button
           type="submit"
           disabled={isLoading || !question.trim()}
-          className="bg-accent text-text-on-accent px-6 py-2 rounded-md font-medium hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-canvas disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 h-10"
+          className="flex h-11 items-center gap-2 rounded-md bg-accent px-5 font-medium text-text-on-accent hover:bg-accent-hover focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-canvas focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <MessageCircleQuestion size={18} />
+          <MessageCircleQuestion size={17} />
           {isLoading ? 'Working…' : 'Ask'}
         </button>
       </form>
 
       {/*
         The answer is deliberately not streamed: grounding validation runs after
-        the model finishes, and a streamed response cannot be withdrawn. This is
-        the honest substitute — it states what is happening without inventing
-        per-stage progress the backend does not report.
+        the model finishes, and a streamed response cannot be withdrawn. This
+        states what is happening without inventing per-stage progress the
+        backend does not report.
       */}
       {isLoading && (
         <div
           role="status"
-          className="p-4 bg-structure border border-border rounded-lg text-text-muted text-sm"
+          className="rounded-md border border-border bg-structure px-4 py-3 text-sm text-text-muted"
         >
-          Retrieving passages, then checking every citation before showing anything.
+          Searching passages, then checking every citation before showing anything.
         </div>
       )}
 
       {error && (
-        <div className="p-4 bg-danger/10 text-danger border border-danger/20 rounded-md">
+        <div className="rounded-md border border-danger/20 bg-danger/10 px-4 py-3 text-danger">
           {error}
         </div>
       )}
 
       {result?.outcome === 'insufficient_context' && (
         /*
-          Deliberately distinct from an answer, and deliberately not an error
-          state. The system worked and is telling the truth about what it does
-          not know — styled like an answer it would be read as one.
+          Distinct from an answer, and deliberately not an error. The system
+          worked and is reporting what it cannot support; styled like an answer
+          it would be read as one.
         */
-        <div
+        <section
           data-testid="refusal"
-          className="p-6 border-2 border-dashed border-border rounded-lg bg-structure/50 space-y-2"
+          className="space-y-3 rounded-lg border-2 border-dashed border-border bg-structure/50 p-6"
         >
-          <p className="font-space-grotesk font-bold text-text">No supported answer</p>
+          <h2 className="font-space-grotesk font-bold text-text">No supported answer</h2>
           <p className="text-text-muted">{result.message}</p>
-          {asked && <p className="text-sm text-text-muted italic">You asked: “{asked}”</p>}
-        </div>
+          {asked && (
+            <p className="border-t border-border pt-3 text-sm text-text-muted italic">
+              You asked: “{asked}”
+            </p>
+          )}
+        </section>
       )}
 
       {result?.outcome === 'answered' && result.answer && (
-        <div data-testid="answer" className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-          <div className="lg:col-span-3 space-y-4 bg-surface border border-border rounded-lg p-6">
+        <div data-testid="answer" className="space-y-8">
+          <section className="space-y-4 rounded-lg border border-border bg-surface p-6">
             {/*
-              Rendered claim by claim, never concatenated into a paragraph. The
-              structure is the guarantee: flattening loses which citation belongs
-              to which sentence, which is the entire point.
+              Rendered claim by claim, never concatenated. The structure is the
+              guarantee: flattening loses which citation belongs to which
+              sentence, which is the entire point.
             */}
             {result.answer.claims.map((claim, index) => (
-              <p key={index} className="text-text leading-relaxed">
-                {claim.text}{' '}
+              <p key={index} className="text-[15px] leading-7 text-text">
+                {claim.text}
                 {claim.citations.map((citation) => (
                   <button
                     key={citation.chunk_id}
                     type="button"
-                    onClick={() => setActiveChunkId(citation.chunk_id)}
-                    className="align-super text-xs font-mono px-1.5 py-0.5 mx-0.5 rounded bg-accent/10 text-accent hover:bg-accent hover:text-text-on-accent focus:outline-none focus:ring-2 focus:ring-accent"
+                    onClick={() => reveal(citation.chunk_id)}
+                    title={`${citation.filename} · ${pageLabel(citation)}`}
                     aria-label={`Show source ${chipNumber.get(citation.chunk_id)}`}
+                    className="mx-1 inline-flex h-5 min-w-5 items-center justify-center rounded border border-accent/20 bg-accent/10 px-1 align-text-top font-mono text-[11px] text-accent hover:bg-accent hover:text-text-on-accent focus:ring-2 focus:ring-accent focus:outline-none"
                   >
                     {chipNumber.get(citation.chunk_id)}
                   </button>
                 ))}
               </p>
             ))}
-          </div>
+          </section>
 
-          <aside className="lg:col-span-2 space-y-3">
-            <h2 className="font-space-grotesk font-bold text-text">Evidence</h2>
-            {evidence.map((citation) => (
-              <div
-                key={citation.chunk_id}
-                data-testid={`evidence-${citation.chunk_id}`}
-                className={`rounded-lg border p-4 space-y-2 bg-structure ${
-                  activeChunkId === citation.chunk_id ? 'border-accent' : 'border-border'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-accent/10 text-accent">
-                    {chipNumber.get(citation.chunk_id)}
-                  </span>
-                  <span className="text-xs text-text-muted font-mono">
-                    Sim: {citation.similarity}
-                  </span>
-                </div>
-                {citation.filename ? (
-                  <Link
-                    href={`/documents/${citation.document_id}`}
-                    className="block text-sm font-medium text-accent hover:underline"
+          <section className="space-y-3">
+            <div className="flex items-baseline justify-between">
+              <h2 className="font-space-grotesk font-bold text-text">Sources</h2>
+              <span className="text-xs text-text-muted">
+                {evidence.length} passage{evidence.length === 1 ? '' : 's'} · click a number above
+                to jump
+              </span>
+            </div>
+
+            {evidence.map((citation) => {
+              const isOpen = expanded.has(citation.chunk_id);
+              return (
+                <div
+                  key={citation.chunk_id}
+                  data-testid={`evidence-${citation.chunk_id}`}
+                  ref={(el) => {
+                    entryRefs.current.set(citation.chunk_id, el);
+                  }}
+                  className={`overflow-hidden rounded-lg border bg-structure ${
+                    activeChunkId === citation.chunk_id ? 'border-accent' : 'border-border'
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggle(citation.chunk_id)}
+                    aria-expanded={isOpen}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-control focus:ring-2 focus:ring-accent focus:outline-none"
                   >
-                    {citation.filename} · {pageLabel(citation)}
-                  </Link>
-                ) : (
-                  /* The query log keeps chunk ids without a foreign key, so a
-                     cited chunk can outlive its document. Factual, not an error. */
-                  <p className="text-sm text-text-muted">The source document has been removed.</p>
-                )}
-                {/* Full chunk text, never truncated: a snippet short enough to be
-                    tidy is short enough to hide the qualifying clause. */}
-                <p className="text-sm text-text whitespace-pre-wrap leading-relaxed">
-                  {citation.snippet}
-                </p>
-              </div>
-            ))}
-          </aside>
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded bg-accent/10 font-mono text-[11px] text-accent">
+                      {chipNumber.get(citation.chunk_id)}
+                    </span>
+                    {citation.filename ? (
+                      <span className="flex-1 truncate text-sm font-medium text-text">
+                        {citation.filename}{' '}
+                        <span className="font-normal text-text-muted">
+                          · {pageLabel(citation)}
+                        </span>
+                      </span>
+                    ) : (
+                      /* The query log keeps chunk ids without a foreign key, so a
+                         cited chunk can outlive its document. Factual, not an error. */
+                      <span className="flex-1 text-sm text-text-muted">
+                        The source document has been removed
+                      </span>
+                    )}
+                    <span className="font-mono text-xs text-text-muted">
+                      {citation.similarity.toFixed(2)}
+                    </span>
+                    {isOpen ? (
+                      <ChevronDown size={16} className="text-text-muted" />
+                    ) : (
+                      <ChevronRight size={16} className="text-text-muted" />
+                    )}
+                  </button>
+
+                  {/* Collapsed shows a flattened preview; expanded shows the passage
+                      exactly as stored, line breaks and all. The full text is always
+                      one click away — a preview alone could hide the qualifying
+                      clause that changes the meaning. */}
+                  <div className="border-t border-border px-4 py-3">
+                    {isOpen ? (
+                      <>
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap text-text">
+                          {citation.snippet}
+                        </p>
+                        {citation.filename && (
+                          <Link
+                            href={`/documents/${citation.document_id}`}
+                            className="mt-3 inline-block text-xs font-medium text-accent hover:underline"
+                          >
+                            Open document →
+                          </Link>
+                        )}
+                      </>
+                    ) : (
+                      <p className="line-clamp-2 text-sm leading-relaxed text-text-muted">
+                        {flatten(citation.snippet)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </section>
         </div>
       )}
     </div>

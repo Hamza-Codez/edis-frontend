@@ -4,17 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import { fetchApi, ApiError } from '@/lib/api-client';
 import { UploadCloud, File as FileIcon, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import type { DocumentResponse, DocumentStatus } from '@/lib/types';
 
-type DocumentStatus = 'pending' | 'extracting' | 'chunking' | 'embedding' | 'indexed' | 'failed';
-
-interface DocumentRow {
-  id: string;
-  filename: string;
-  byte_size: number;
-  status: DocumentStatus;
-  status_detail?: string;
-  created_at: string;
-}
+// Re-exported from the generated contract, never redefined: a hand-written copy
+// silently disagrees with the backend instead of failing the type check.
+type DocumentRow = DocumentResponse;
 
 const MAX_UPLOAD_MB = 25;
 const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
@@ -29,7 +23,7 @@ export default function DocumentList() {
   
   const fetchDocuments = async () => {
     try {
-      const data = await fetchApi('/documents') as { items: DocumentRow[] };
+      const data = await fetchApi<{ items: DocumentRow[] }>('/documents');
       setDocuments(data.items);
     } catch (err) {
       console.error('Failed to fetch documents:', err);

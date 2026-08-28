@@ -64,7 +64,10 @@ describe('AskPage', () => {
     expect(screen.queryByTestId('refusal')).not.toBeInTheDocument();
   });
 
-  it('shows the full chunk text in the evidence panel, untruncated', async () => {
+  it('reveals the full chunk text, untruncated, one click away', async () => {
+    // Collapsed by default so the answer is readable, but the complete passage
+    // must always be reachable: a preview short enough to be tidy is short
+    // enough to hide the qualifying clause that changes the meaning.
     const long = 'A'.repeat(400);
     mockedFetchApi.mockResolvedValueOnce({
       outcome: 'answered',
@@ -76,7 +79,16 @@ describe('AskPage', () => {
     await ask();
 
     await waitFor(() => expect(screen.getByTestId('evidence-11')).toBeInTheDocument());
-    expect(within(screen.getByTestId('evidence-11')).getByText(long)).toBeInTheDocument();
+    const entry = screen.getByTestId('evidence-11');
+
+    // Collapsed: a preview only, with no way through to the document.
+    expect(within(entry).queryByText('Open document →')).not.toBeInTheDocument();
+
+    fireEvent.click(within(entry).getByRole('button', { expanded: false }));
+
+    // Expanded: the passage exactly as stored, and a link to its source.
+    expect(within(entry).getByText(long)).toBeInTheDocument();
+    expect(within(entry).getByText('Open document →')).toBeInTheDocument();
   });
 
   it('activates the matching evidence entry when a citation chip is used', async () => {
@@ -99,7 +111,11 @@ describe('AskPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Show source 2' }));
 
-    expect(screen.getByTestId('evidence-12').className).toContain('border-accent');
+    // The chip both highlights and expands its entry, so the passage backing
+    // that specific claim is visible without hunting for it.
+    const entry = screen.getByTestId('evidence-12');
+    expect(entry.className).toContain('border-accent');
+    expect(within(entry).getByRole('button', { expanded: true })).toBeInTheDocument();
   });
 
   it('renders a refusal in its own container, never as an answer', async () => {
@@ -131,7 +147,7 @@ describe('AskPage', () => {
     await ask();
 
     await waitFor(() => expect(screen.getByTestId('evidence-11')).toBeInTheDocument());
-    expect(screen.getByText('The source document has been removed.')).toBeInTheDocument();
+    expect(screen.getByText('The source document has been removed')).toBeInTheDocument();
   });
 
   it('disables submit while a question is in flight', async () => {
