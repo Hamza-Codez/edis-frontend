@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { fetchApi } from '@/lib/api-client';
 import type { QueryDetailResponse } from '@/lib/types';
-import { OutcomeBadge } from '../page';
+import { OutcomeBadge } from '@/app/components/ui/outcome-badge';
 
 /**
  * Enough to reconstruct why an answer came out as it did, without opening a

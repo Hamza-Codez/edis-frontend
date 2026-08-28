@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Eye, EyeOff } from 'lucide-react';
 import { fetchApi } from '@/lib/api-client';
 import type { ManagedUser } from '@/lib/types';
 
@@ -12,7 +12,9 @@ export default function AdminUsersPage() {
   const [busy, setBusy] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState('member');
+  const [viewer, setViewer] = useState<{ id: string } | null>(null);
 
   const load = async () => {
     try {
@@ -31,6 +33,11 @@ export default function AdminUsersPage() {
       .catch((e: unknown) =>
         !cancelled && setError(e instanceof Error ? e.message : 'Could not load users.')
       );
+
+    fetchApi<{ id: string }>('/auth/me')
+      .then((me) => !cancelled && setViewer(me))
+      .catch(() => undefined);
+
     return () => {
       cancelled = true;
     };
@@ -99,21 +106,31 @@ export default function AdminUsersPage() {
         <Labelled label="Email" className="min-w-52 flex-1">
           <input
             type="email"
+            autoComplete="off"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="h-10 w-full rounded-md border border-border bg-canvas px-3 text-text focus:ring-2 focus:ring-accent focus:outline-none"
           />
         </Labelled>
-        <Labelled label="Password" className="min-w-44 flex-1">
+        <Labelled label="Password" className="min-w-44 flex-1 relative">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
+            autoComplete="new-password"
             required
             minLength={8}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-10 w-full rounded-md border border-border bg-canvas px-3 text-text focus:ring-2 focus:ring-accent focus:outline-none"
+            className="h-10 w-full rounded-md border border-border bg-canvas pl-3 pr-10 text-text focus:ring-2 focus:ring-accent focus:outline-none"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-[26px] text-text-muted hover:text-text focus:outline-none focus:text-accent"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
         </Labelled>
         <Labelled label="Role">
           <select
@@ -168,7 +185,7 @@ export default function AdminUsersPage() {
                 <td className="space-x-3 px-4 py-2 text-right">
                   <button
                     type="button"
-                    disabled={busy}
+                    disabled={busy || (viewer?.id === u.id)}
                     onClick={() =>
                       void act(
                         () =>
@@ -188,7 +205,7 @@ export default function AdminUsersPage() {
                       refusal is the point: it names deactivation as the remedy. */}
                   <button
                     type="button"
-                    disabled={busy}
+                    disabled={busy || (viewer?.id === u.id)}
                     onClick={() =>
                       void act(
                         () => fetchApi(`/users/${u.id}`, { method: 'DELETE' }),

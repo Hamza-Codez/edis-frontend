@@ -48,6 +48,14 @@ const PAIRS: [string, string, string, number][] = [
   ['label on ink tile', 'chrome-text-muted', 'ink', 4.5],
   ['alarm figure on ink tile', 'danger-on-dark', 'ink', 4.5],
   ['table head label on maroon chrome', 'chrome-text', 'chrome', 4.5],
+  // Warning on a light surface. The plain `warning` token is 3.25:1 on white and
+  // was in use on a near-white bg-warning/10 — this pair replaces it.
+  ['warning label on its own surface', 'warning-strong', 'warning-surface', 4.5],
+  ['warning label on surface', 'warning-strong', 'surface', 4.5],
+  // Panel headers use bg-structure, so these three pairs are now load-bearing.
+  ['primary copy on structure', 'text', 'structure', 7],
+  ['muted copy on structure', 'text-muted', 'structure', 4.5],
+  ['link on structure', 'accent', 'structure', 4.5],
   // §2 prefers 7:1 for primary copy, and a page heading is the most primary
   // copy on the screen.
   ['page heading on canvas', 'heading', 'canvas', 7],

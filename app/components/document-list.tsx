@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { fetchApi, ApiError } from '@/lib/api-client';
 import { UploadCloud, File as FileIcon, AlertCircle, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { ConfirmModal } from './confirm-modal';
 import type { CurrentUser, DocumentResponse, DocumentStatus } from '@/lib/types';
 import { canModifyDocument } from '@/lib/labels';
 
@@ -19,9 +20,11 @@ export default function DocumentList() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [viewer, setViewer] = useState<CurrentUser | null>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [removeError, setRemoveError] = useState<string | null>(null);
+  const [docToRemove, setDocToRemove] = useState<DocumentRow | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -53,21 +56,21 @@ export default function DocumentList() {
     };
   }, []);
 
-  const handleRemove = async (doc: DocumentRow) => {
-    // Confirmed by filename, because the row a click lands on is not always the
-    // row the eye was on when a list is polling and reordering underneath it.
-    if (!confirm(`Remove "${doc.filename}"? Its text, chunks and embeddings are deleted. Questions already asked keep their record.`)) {
-      return;
-    }
+  const handleRemove = (doc: DocumentRow) => {
+    setDocToRemove(doc);
+  };
 
+  const confirmRemove = async () => {
+    const doc = docToRemove;
+    if (!doc) return;
+
+    setDocToRemove(null);
     setRemovingId(doc.id);
     setRemoveError(null);
     try {
       await fetchApi(`/documents/${doc.id}`, { method: 'DELETE' });
       setDocuments((current) => current.filter((d) => d.id !== doc.id));
     } catch (err) {
-      // Shown verbatim: a refusal from this endpoint names its reason, and a
-      // 404 here means the document is not yours rather than that it vanished.
       setRemoveError(
         err instanceof ApiError ? err.message : 'That document could not be removed.'
       );
@@ -88,24 +91,35 @@ export default function DocumentList() {
     }
   }, [documents]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      setSelectedFile(null);
+      return;
+    }
     
     setUploadError(null);
     
     if (file.size > MAX_UPLOAD_BYTES) {
       setUploadError(`This file is ${(file.size / (1024 * 1024)).toFixed(1)} MB; the limit is ${MAX_UPLOAD_MB} MB.`);
       if (fileInputRef.current) fileInputRef.current.value = '';
+      setSelectedFile(null);
       return;
     }
 
+    setSelectedFile(file);
+  };
+
+  const handleStartScan = async () => {
+    if (!selectedFile) return;
+
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', selectedFile);
 
     const idempotencyKey = crypto.randomUUID();
 
     setUploading(true);
+    setUploadError(null);
     try {
       await fetchApi('/documents', {
         method: 'POST',
@@ -116,6 +130,7 @@ export default function DocumentList() {
       });
       // Fetch immediately to show the 'pending' row
       await fetchDocuments();
+      setSelectedFile(null);
     } catch (err) {
       if (err instanceof ApiError) {
         setUploadError(err.message);
@@ -146,25 +161,41 @@ export default function DocumentList() {
       <div className="bg-surface border border-border rounded-md p-6">
         <h2 className="text-lg font-semibold text-text mb-4">Upload Document</h2>
         <div className="flex flex-col items-start gap-4">
-          <label className={`
-            flex items-center gap-3 px-4 py-3 rounded-md border-2 border-dashed 
-            transition-colors cursor-pointer w-full max-w-md
-            ${uploading ? 'bg-control opacity-50 cursor-not-allowed' : 'hover:bg-canvas border-border hover:border-accent'}
-          `}>
-            <UploadCloud className="w-5 h-5 text-text-muted" />
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-text">Choose file or drag and drop</span>
-              <span className="text-xs text-text-muted">PDF or DOCX, up to {MAX_UPLOAD_MB} MB</span>
-            </div>
-            <input 
-              ref={fileInputRef}
-              type="file" 
-              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              onChange={handleFileChange}
-              disabled={uploading}
-              className="hidden" 
-            />
-          </label>
+          <div className="flex flex-row items-center gap-4 w-full">
+            <label className={`
+              flex items-center gap-3 px-4 py-3 rounded-md border-2 border-dashed 
+              transition-colors cursor-pointer w-full max-w-md
+              ${uploading ? 'bg-control opacity-50 cursor-not-allowed' : 'hover:bg-canvas border-border hover:border-accent'}
+            `}>
+              <UploadCloud className="w-5 h-5 text-text-muted" />
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-text">
+                  {selectedFile ? selectedFile.name : 'Choose file or drag and drop'}
+                </span>
+                <span className="text-xs text-text-muted">
+                  {selectedFile 
+                    ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` 
+                    : `PDF or DOCX, up to ${MAX_UPLOAD_MB} MB`}
+                </span>
+              </div>
+              <input 
+                ref={fileInputRef}
+                type="file" 
+                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                onChange={handleFileChange}
+                disabled={uploading}
+                className="hidden" 
+              />
+            </label>
+            <button
+              type="button"
+              onClick={handleStartScan}
+              disabled={!selectedFile || uploading}
+              className="px-6 py-3 rounded-md font-medium transition-colors bg-accent text-text-on-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            >
+              {uploading ? 'Scanning...' : 'Start Scan'}
+            </button>
+          </div>
           
           {uploadError && (
             <div className="flex items-start gap-2 text-[var(--color-badge-failed-text)] bg-[var(--color-badge-failed-bg)] p-3 rounded-md max-w-md">
@@ -250,6 +281,15 @@ export default function DocumentList() {
           </tbody>
         </table>
       </div>
+
+      <ConfirmModal
+        isOpen={docToRemove !== null}
+        title="Remove Document"
+        message={`Remove "${docToRemove?.filename}"? Its text, chunks and embeddings are deleted. Questions already asked keep their record.`}
+        confirmLabel="Remove"
+        onConfirm={confirmRemove}
+        onCancel={() => setDocToRemove(null)}
+      />
     </div>
   );
 }

@@ -66,6 +66,15 @@
   --color-success: #2D6B3E;
   --color-warning: #B8860B;
   --color-danger: #B34A44;
+  --color-danger-hover: #993F3A;
+
+  /* Warning, restated for light surfaces. `--color-warning` is a 3.25:1 on
+     white and fails the 4.5 the contract requires everywhere it was being used
+     — always on a near-white `bg-warning/10`. These two follow the badge
+     pattern instead, and are the pair to use for any warning that sits on
+     canvas, surface or structure. */
+  --color-warning-surface: #FDE8D4;
+  --color-warning-strong: #7C3C00;
 
   /* Status on dark chrome. Red on maroon cannot separate however light it is
      made — it reads as part of the surface — so alarm moves to a warm amber,
@@ -154,5 +163,16 @@
       var(--color-card-to) 0%,
       var(--color-card-from) 100%
     );
+  }
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  a[href],
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  input[type="button"]:not(:disabled) {
+    cursor: pointer;
   }
 }

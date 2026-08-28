@@ -49,8 +49,10 @@ export default async function Home() {
             href={href}
             className="card-maroon group flex flex-col gap-2 rounded-md border border-card-border p-5 text-chrome-text hover:border-chrome-text/40 focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-canvas focus:outline-none"
           >
-            <Icon size={20} className="text-chrome-text" />
-            <span className="font-space-grotesk font-bold text-chrome-text">{title}</span>
+            <div className="flex items-center gap-2">
+              <Icon size={20} className="text-chrome-text" />
+              <span className="font-space-grotesk font-bold text-chrome-text">{title}</span>
+            </div>
             <span className="text-sm leading-relaxed text-chrome-text-muted">{body}</span>
           </Link>
         ))}

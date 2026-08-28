@@ -4,6 +4,18 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
+jest.mock('next/navigation', () => ({
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+jest.mock('../app/components/corpus-summary', () => ({
+  CorpusSummary: () => <div data-testid="corpus-summary-mock" />,
+}));
+jest.mock('../app/components/recent-questions', () => ({
+  RecentQuestions: () => <div data-testid="recent-questions-mock" />,
+}));
+
 import AskPage from '../app/ask/page';
 import QueriesPage from '../app/queries/page';
 import * as apiClient from '../lib/api-client';

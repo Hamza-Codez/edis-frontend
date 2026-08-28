@@ -463,6 +463,8 @@ export interface components {
         SearchResponse: {
             /** Chunks */
             chunks: components["schemas"]["SearchResponseChunk"][];
+            /** Min Similarity */
+            min_similarity: number;
         };
         /** SearchResponseChunk */
         SearchResponseChunk: {

@@ -277,4 +277,7 @@ record it in As Built.
 
 ## 8. As Built
 
-*Amend after implementation.*
+- `ConfirmModal` refactored as per spec08 with focus management and token alignment.
+- Added `min_similarity` integration from backend in `/search`. Redesigned layout with `grid-cols-12`, a sticky 4-col query panel with `SegmentControl`, removed threshold slider, and computed rank deltas.
+- Redesigned `/ask` layout to use a 12-col grid. Implemented an idle state with `CorpusSummary` and `RecentQuestions` in the left panel. Added a "Receipt" rail for answered queries and removed all bypass controls from the refusal screen.
+- Maintained design contract invariants with appropriate `rounded-sm`/`md` usage and valid base colors across components.

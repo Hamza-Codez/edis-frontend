@@ -84,10 +84,12 @@ describe('removing a document', () => {
 
   it('drops the row once the backend confirms', async () => {
     serve(member, [doc()]);
-    window.confirm = jest.fn(() => true);
 
     render(<DocumentList />);
     fireEvent.click(await screen.findByRole('button', { name: 'Remove policy.pdf' }));
+
+    // Click confirm in modal
+    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
 
     await waitFor(() => expect(screen.queryByText('policy.pdf')).not.toBeInTheDocument());
   });
@@ -95,10 +97,11 @@ describe('removing a document', () => {
   it('keeps the row and shows the reason when the backend refuses', async () => {
     const refusal = new apiClient.ApiError('Not found', 'DOCUMENT_NOT_FOUND', {});
     serve(member, [doc()], () => Promise.reject(refusal));
-    window.confirm = jest.fn(() => true);
 
     render(<DocumentList />);
     fireEvent.click(await screen.findByRole('button', { name: 'Remove policy.pdf' }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
 
     // Optimistically removing the row would tell the user it worked when it did not.
     await waitFor(() => expect(screen.getByText('Not found')).toBeInTheDocument());
@@ -107,10 +110,11 @@ describe('removing a document', () => {
 
   it('does nothing when the confirmation is declined', async () => {
     serve(member, [doc()]);
-    window.confirm = jest.fn(() => false);
 
     render(<DocumentList />);
     fireEvent.click(await screen.findByRole('button', { name: 'Remove policy.pdf' }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
     expect(screen.getByText('policy.pdf')).toBeInTheDocument();
     expect(mockedFetchApi).not.toHaveBeenCalledWith(

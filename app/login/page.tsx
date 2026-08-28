@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { fetchApi } from "@/lib/api-client";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [inflight, setInflight] = useState(false);
   const router = useRouter();
@@ -51,7 +53,8 @@ export default function LoginPage() {
           <div>
             <label className="block text-sm font-medium text-text-muted mb-1">Email</label>
             <input 
-              type="email" 
+              type="email"
+              autoComplete="username" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-border bg-canvas px-3 py-2 text-text focus:outline-none focus:border-accent"
@@ -60,13 +63,24 @@ export default function LoginPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-text-muted mb-1">Password</label>
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-border bg-canvas px-3 py-2 text-text focus:outline-none focus:border-accent"
-              required 
-            />
+            <div className="relative">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full border border-border bg-canvas pl-3 pr-10 py-2 text-text focus:outline-none focus:border-accent"
+                required 
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text focus:outline-none focus:text-accent"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
           <button 
             type="submit" 

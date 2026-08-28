@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { RefreshCw } from 'lucide-react';
 import { fetchApi } from '@/lib/api-client';
+import { ConfirmModal } from './confirm-modal';
 
 /**
  * Re-chunks and re-embeds from stored page text — no re-upload.
@@ -16,13 +17,11 @@ import { fetchApi } from '@/lib/api-client';
 export default function ReindexButton({ documentId }: { documentId: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const router = useRouter();
 
-  const reindex = async () => {
-    // Confirmed because it spends embedding quota and briefly changes what
-    // search returns for this document.
-    if (!confirm('Re-chunk and re-embed this document? It will be unsearchable until it finishes.'))
-      return;
+  const confirmReindex = async () => {
+    setShowModal(false);
 
     setBusy(true);
     setError(null);
@@ -40,7 +39,7 @@ export default function ReindexButton({ documentId }: { documentId: string }) {
     <div className="inline-flex flex-col items-end gap-1">
       <button
         type="button"
-        onClick={reindex}
+        onClick={() => setShowModal(true)}
         disabled={busy}
         className="inline-flex items-center gap-2 rounded-md border border-border bg-control px-3 py-2 text-sm font-medium text-text hover:bg-control-hover focus:ring-2 focus:ring-accent focus:outline-none disabled:opacity-50"
       >
@@ -48,6 +47,16 @@ export default function ReindexButton({ documentId }: { documentId: string }) {
         {busy ? 'Starting…' : 'Reindex'}
       </button>
       {error && <span className="text-xs text-danger">{error}</span>}
+
+      <ConfirmModal
+        isOpen={showModal}
+        title="Reindex Document"
+        message="Re-chunk and re-embed this document? It will be unsearchable until it finishes."
+        confirmLabel="Reindex"
+        onConfirm={confirmReindex}
+        onCancel={() => setShowModal(false)}
+        isDestructive={false}
+      />
     </div>
   );
 }

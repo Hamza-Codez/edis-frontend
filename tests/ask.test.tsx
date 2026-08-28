@@ -8,7 +8,18 @@ import AskPage from '../app/ask/page';
 import * as apiClient from '../lib/api-client';
 import type { AskResponse, CitationChunk } from '../lib/types';
 
+jest.mock('next/navigation', () => ({
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 jest.mock('../lib/api-client');
+
+jest.mock('../app/components/corpus-summary', () => ({
+  CorpusSummary: () => <div data-testid="corpus-summary-mock" />,
+}));
+jest.mock('../app/components/recent-questions', () => ({
+  RecentQuestions: () => <div data-testid="recent-questions-mock" />,
+}));
 
 const mockedFetchApi = apiClient.fetchApi as jest.MockedFunction<typeof apiClient.fetchApi>;
 
@@ -134,6 +145,9 @@ describe('AskPage', () => {
     expect(screen.queryByTestId('answer')).not.toBeInTheDocument();
     // The backend message names the remedy; it is shown verbatim.
     expect(screen.getByText(message)).toBeInTheDocument();
+    
+    // Invariant guard: no control to bypass the refusal
+    expect(screen.queryByText(/answer anyway|lower.*threshold|force/i)).not.toBeInTheDocument();
   });
 
   it('says so plainly when a cited document has since been removed', async () => {

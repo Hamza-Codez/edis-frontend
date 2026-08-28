@@ -5,51 +5,16 @@ import Link from 'next/link';
 import { fetchApi } from '@/lib/api-client';
 import type { CurrentUser, QueryResponse } from '@/lib/types';
 import { queryScopeLabel } from '@/lib/labels';
+import { OUTCOMES, OutcomeBadge, type OutcomeKey } from '@/app/components/ui/outcome-badge';
 
 /** How many rows the mix is computed over. Labelled on screen, because a rate
  *  computed from a capped window and presented as "the" rate is a lie. */
 const WINDOW = 200;
 
-type Outcome = 'answered' | 'insufficient_context' | 'ungrounded_rejected' | 'upstream_error';
-
-/**
- * spec06 §3 — these four numbers are the health of the system.
- *
- * `insufficient_context` is deliberately NOT alarming: it is the system working
- * as designed. `ungrounded_rejected` is, because it means the model returned
- * citations it was never given.
- */
-const OUTCOMES: { key: Outcome; label: string; meaning: string; alarming: boolean }[] = [
-  {
-    key: 'answered',
-    label: 'Answered',
-    meaning: 'supported by retrieved passages',
-    alarming: false,
-  },
-  {
-    key: 'insufficient_context',
-    label: 'Refused',
-    meaning: 'nothing matched strongly enough — working as designed',
-    alarming: false,
-  },
-  {
-    key: 'ungrounded_rejected',
-    label: 'Rejected',
-    meaning: 'model cited something it was not given; answer discarded',
-    alarming: true,
-  },
-  {
-    key: 'upstream_error',
-    label: 'Provider error',
-    meaning: 'unavailable, rate limited, or ignoring the schema',
-    alarming: true,
-  },
-];
-
 export default function QueriesPage() {
   const [rows, setRows] = useState<QueryResponse[] | null>(null);
   const [role, setRole] = useState<CurrentUser['role'] | null>(null);
-  const [filter, setFilter] = useState<Outcome | 'all'>('all');
+  const [filter, setFilter] = useState<OutcomeKey | 'all'>('all');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -184,21 +149,5 @@ export default function QueriesPage() {
         </table>
       </section>
     </div>
-  );
-}
-
-export function OutcomeBadge({ outcome }: { outcome: string }) {
-  const spec = OUTCOMES.find((o) => o.key === outcome);
-  const tone = !spec
-    ? 'bg-control text-text-muted'
-    : spec.alarming
-      ? 'bg-danger/10 text-danger'
-      : outcome === 'answered'
-        ? 'bg-success/10 text-success'
-        : 'bg-control text-text-muted';
-  return (
-    <span className={`inline-flex rounded px-2 py-0.5 text-xs font-medium ${tone}`}>
-      {spec?.label ?? outcome}
-    </span>
   );
 }

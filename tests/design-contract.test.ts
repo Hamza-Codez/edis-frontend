@@ -52,6 +52,12 @@ describe('spec07 design contract', () => {
     );
   });
 
+  it('§5.3 — no wiped base colours', () => {
+    // text-white, bg-black, border-transparent compile to nothing once `--color-*: initial` runs.
+    // The default palette regex above misses these.
+    expect(offenders(/\b(text-white|bg-black|border-transparent)\b/)).toEqual([]);
+  });
+
   it('§3 — radius never exceeds md, the permitted maximum', () => {
     // The colour scale was replaced but the radius scale was not, so rounded-lg
     // and above still resolve to Tailwind defaults and silently overshoot.
@@ -64,15 +70,52 @@ describe('spec07 design contract', () => {
   });
 
   it('§3 — borders over shadows: nothing inline may cast one', () => {
-    // Drop shadows are reserved for things that float. Nothing in this app
-    // portals or overlays yet, so any shadow is decoration.
-    expect(offenders(/\bshadow-(sm|md|lg|xl|2xl)\b/)).toEqual([]);
+    // Drop shadows are reserved for things that float (dialogs, portalled dropdowns).
+    const offending = offenders(/\bshadow-(sm|md|lg|xl|2xl)\b/).filter(
+      (line) => !line.startsWith(path.join('app', 'components', 'confirm-modal.tsx'))
+    );
+    expect(offending).toEqual([]);
+  });
+
+  it('§1 Q4 — main is the only VERTICALLY scrolling region', () => {
+    // "Exactly one scrolling content region", handled at the root. A rail with
+    // its own vertical overflow is the natural way to build a sticky sidebar and
+    // the rule the two-column layouts will break first — the symptom is two
+    // scrollbars and a pinned bar that scrolls away under its own content.
+    //
+    // Horizontal overflow is deliberately allowed: a wide table or a JSON block
+    // must scroll inside its own container, or the whole page scrolls sideways.
+    // `overflow-auto` unqualified is caught because it applies to both axes.
+    const offending = offenders(/\boverflow-(y-)?(auto|scroll)\b/).filter(
+      (line) => !line.startsWith(path.join('app', 'layout.tsx'))
+    );
+    expect(offending).toEqual([]);
+  });
+
+  it('§1 Q3 — controls stay in the 36-40px band', () => {
+    // h-9 (36) and h-10 (40) are the permitted sizes. The header bar is h-14 and
+    // is chrome rather than a control, so layout.tsx is exempt. This was prose
+    // in an As Built note until an audit found two h-11 controls.
+    const offending = offenders(/\bh-(11|12|13|14)\b/).filter(
+      (line) => !line.startsWith(path.join('app', 'layout.tsx'))
+    );
+    expect(offending).toEqual([]);
+  });
+
+  it('§3 — buttons and inputs sit on the sm radius step, not md', () => {
+    // §3 assigns sm to buttons/inputs and md to cards. The radius test above
+    // only bans anything *above* md, so this drift is otherwise invisible.
+    for (const rel of ['components/ui/button.tsx', 'components/ui/question-field.tsx']) {
+      const text = fs.readFileSync(path.join(APP, rel), 'utf-8');
+      expect(text).toContain('rounded-sm');
+      expect(text).not.toMatch(/\brounded-md\b/);
+    }
   });
 
   it('§1 Q2 — figures and table cells use tabular numerals', () => {
     // Proportional digits jitter between rows and between polls, which makes a
     // changing count look like a rendering fault.
-    const numericScreens = ['queries/page.tsx', 'components/corpus-summary.tsx'];
+    const numericScreens = ['queries/page.tsx', 'components/ui/stat.tsx'];
     for (const rel of numericScreens) {
       const text = fs.readFileSync(path.join(APP, rel), 'utf-8');
       expect(text).toContain('tabular-nums');
