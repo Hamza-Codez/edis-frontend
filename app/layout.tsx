@@ -51,9 +51,10 @@ export default async function RootLayout({
                   <Link href="/ask" className="block px-3 py-2 text-sm text-text hover:bg-canvas font-medium">Ask</Link>
                   <Link href="/documents" className="block px-3 py-2 text-sm text-text hover:bg-canvas font-medium">Documents</Link>
                   <Link href="/search" className="block px-3 py-2 text-sm text-text hover:bg-canvas font-medium">Search</Link>
-                  {/* The admin console (/admin/users, /queries) arrives with
-                      spec06. A nav link to a route that does not exist is a
-                      link to a 404, so it is not shown until it is built. */}
+                  <Link href="/queries" className="block px-3 py-2 text-sm text-text hover:bg-canvas font-medium">Query log</Link>
+                  {user.role === 'admin' && (
+                    <Link href="/admin/users" className="block px-3 py-2 text-sm text-text-muted hover:bg-canvas">Users</Link>
+                  )}
                 </div>
                 <div className="p-4 border-t border-border">
                   <SignOutButton />

@@ -94,6 +94,29 @@ useful part.
 
 ---
 
-## 9. As Built
+## 9. As Built — 2026-08-28
 
-*Amend after implementation.*
+Built: `/queries` with the outcome mix and a filterable log, `/queries/[id]`,
+`/admin/users`, and a Reindex control on the document detail page. Navigation
+regains Query log for everyone and Users for admins.
+
+**Divergences**
+
+- **The outcome mix is computed client-side over the most recent 200 rows**,
+  not by a backend aggregate. The window is stated on screen, because a rate
+  computed from a capped list and presented as *the* rate is a lie. A real
+  aggregate endpoint is the right answer once the log is large enough for 200
+  rows to stop being representative.
+- **`insufficient_context` is labelled "Refused" and styled neutrally.** It is
+  the system working as designed; styled as an error it reads as a fault and
+  invites someone to "fix" the gate. Only `ungrounded_rejected` and
+  `upstream_error` are treated as alarming, and only when non-zero.
+- Query detail shows `answer_json` verbatim, which is where an invented
+  citation is visible on a rejected answer.
+
+**Found while building**
+
+`jest.config.js` had no `moduleNameMapper` for the `@/` alias the app uses
+throughout, so any component importing through it could not be tested at all —
+the failure is a module-not-found on a path that resolves fine in the build.
+Mapped now.

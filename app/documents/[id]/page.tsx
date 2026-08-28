@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { getCurrentUser } from '@/lib/session';
 import DeleteButton from '@/app/components/delete-button';
+import ReindexButton from '@/app/components/reindex-button';
 import { File as FileIcon, Clock, HardDrive, FileText } from 'lucide-react';
 
 export const metadata = {
@@ -62,7 +63,10 @@ export default async function DocumentDetailPage({ params }: { params: { id: str
         </div>
         
         {canDelete && (
-          <DeleteButton documentId={doc.id} />
+          <div className="flex items-start gap-3">
+            <ReindexButton documentId={doc.id} />
+            <DeleteButton documentId={doc.id} />
+          </div>
         )}
       </div>
       
