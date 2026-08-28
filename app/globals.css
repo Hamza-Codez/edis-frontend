@@ -22,13 +22,14 @@
   --color-accent: #60241E;
   --color-accent-hover: #4D1D18;
 
-  /* Chrome — the dark maroon shell. Persistent navigation and header sit on
-     this, so it is deliberately darker than the accent: an accent that is also
-     a large background stops reading as a call to action. */
-  --color-chrome: #3E1714;
-  --color-chrome-raised: #4D1D18;
-  --color-chrome-hover: #60241E;
-  --color-chrome-border: #6B3A33;
+  /* Chrome — the maroon shell. The sidebar, the header and every table head use
+     this one token, so they cannot drift apart. Still a step darker than the
+     accent: an accent that is also a large background stops reading as a call
+     to action. */
+  --color-chrome: #6B2E27;
+  --color-chrome-raised: #7A362E;
+  --color-chrome-hover: #8A3E35;
+  --color-chrome-border: #96574F;
   --color-chrome-text: #F7F2F1;
   /* Measured against the light end of the card gradient (#8A3A31), the
      hardest surface it lands on: 5.04:1. The previous #C6ADA9 was 3.64:1
@@ -46,9 +47,13 @@
      carries depth without a drop shadow (spec07 §3 keeps shadows for floating
      things). Both ends stay dark enough for white text: the light end is 4.9:1
      against #FFFFFF, above the 4.5:1 the contract requires. */
-  --color-card-from: #3E1714;
+  /* The light end is the ceiling, not a preference: at #8A3A31 muted text is
+     5.04:1 and anything lighter drops under the 4.5 the contract requires. So
+     the gradient is lightened at the dark end instead, which raises the whole
+     card without breaking the text that sits on it. */
+  --color-card-from: #6B2E27;
   --color-card-to: #8A3A31;
-  --color-card-border: #6B3A33;
+  --color-card-border: #96574F;
 
   /* Status — semantic names. `--color-*: initial` above wipes Tailwind's
      default palette, so any utility naming a colour not defined here compiles

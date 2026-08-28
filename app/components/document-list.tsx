@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { fetchApi, ApiError } from '@/lib/api-client';
-import { UploadCloud, File as FileIcon, AlertCircle } from 'lucide-react';
+import { UploadCloud, File as FileIcon, AlertCircle, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import type { DocumentResponse, DocumentStatus } from '@/lib/types';
+import type { CurrentUser, DocumentResponse, DocumentStatus } from '@/lib/types';
+import { canModifyDocument } from '@/lib/labels';
 
 // Re-exported from the generated contract, never redefined: a hand-written copy
 // silently disagrees with the backend instead of failing the type check.
@@ -18,6 +19,9 @@ export default function DocumentList() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [viewer, setViewer] = useState<CurrentUser | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
+  const [removeError, setRemoveError] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -36,6 +40,41 @@ export default function DocumentList() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDocuments();
   }, []);
+
+  useEffect(() => {
+    // Who is looking, so a Remove control is only offered where the backend
+    // would actually allow it. This is UX: the backend answers 404 regardless.
+    let cancelled = false;
+    fetchApi<CurrentUser>('/auth/me')
+      .then((me) => !cancelled && setViewer(me))
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleRemove = async (doc: DocumentRow) => {
+    // Confirmed by filename, because the row a click lands on is not always the
+    // row the eye was on when a list is polling and reordering underneath it.
+    if (!confirm(`Remove "${doc.filename}"? Its text, chunks and embeddings are deleted. Questions already asked keep their record.`)) {
+      return;
+    }
+
+    setRemovingId(doc.id);
+    setRemoveError(null);
+    try {
+      await fetchApi(`/documents/${doc.id}`, { method: 'DELETE' });
+      setDocuments((current) => current.filter((d) => d.id !== doc.id));
+    } catch (err) {
+      // Shown verbatim: a refusal from this endpoint names its reason, and a
+      // 404 here means the document is not yours rather than that it vanished.
+      setRemoveError(
+        err instanceof ApiError ? err.message : 'That document could not be removed.'
+      );
+    } finally {
+      setRemovingId(null);
+    }
+  };
 
   // Polling logic: poll every 3s if any document is non-terminal
   useEffect(() => {
@@ -136,23 +175,31 @@ export default function DocumentList() {
         </div>
       </div>
 
+      {removeError && (
+        <div className="flex items-start gap-2 rounded-md border border-danger/20 bg-danger/10 p-3 text-sm text-danger">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <p>{removeError}</p>
+        </div>
+      )}
+
       <div className="bg-surface border border-border rounded-md overflow-hidden">
         <table className="min-w-full divide-y divide-border">
-          <thead className="bg-canvas">
+          <thead className="bg-chrome">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Document</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Uploaded</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-chrome-text-muted uppercase tracking-wider">Document</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-chrome-text-muted uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-chrome-text-muted uppercase tracking-wider">Uploaded</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-chrome-text-muted uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-surface divide-y divide-border">
             {loading ? (
               <tr>
-                <td colSpan={3} className="px-6 py-4 text-center text-sm text-text-muted">Loading...</td>
+                <td colSpan={4} className="px-6 py-4 text-center text-sm text-text-muted">Loading...</td>
               </tr>
             ) : documents.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-6 py-8 text-center text-sm text-text-muted flex flex-col items-center gap-2">
+                <td colSpan={4} className="px-6 py-8 text-center text-sm text-text-muted flex flex-col items-center gap-2">
                   <FileIcon className="w-8 h-8 text-border" />
                   No documents found. Upload one to get started.
                 </td>
@@ -180,8 +227,22 @@ export default function DocumentList() {
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-text-muted whitespace-nowrap">
+                  <td className="px-6 py-4 text-sm text-text-muted whitespace-nowrap tabular-nums">
                     {new Date(doc.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 text-right whitespace-nowrap">
+                    {viewer && canModifyDocument(viewer, doc.uploaded_by) && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemove(doc)}
+                        disabled={removingId === doc.id}
+                        aria-label={`Remove ${doc.filename}`}
+                        className="inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-xs font-medium text-danger hover:bg-danger/10 focus:ring-2 focus:ring-accent focus:outline-none disabled:opacity-50"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        {removingId === doc.id ? 'Removing…' : 'Remove'}
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))
