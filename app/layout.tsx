@@ -37,16 +37,16 @@ export default async function RootLayout({
           <main className="h-full overflow-y-auto">{children}</main>
         ) : (
           <div className="flex h-full flex-col">
-            <header className="h-14 bg-structure flex items-center justify-between px-4 border-b border-border shrink-0">
-              <Link href="/" className="font-space-grotesk font-bold text-xl tracking-tight text-accent flex items-center gap-2">
+            <header className="chrome-scope h-14 bg-chrome text-chrome-text flex items-center justify-between px-4 border-b border-chrome-border shrink-0">
+              <Link href="/" className="font-space-grotesk font-bold text-xl tracking-tight text-chrome-text flex items-center gap-2">
                 EDIS
               </Link>
-              <div className="text-sm text-text-muted">
-                {user.email} <span className="uppercase text-xs ml-2 bg-border px-1.5 py-0.5">{user.role}</span>
+              <div className="text-sm text-chrome-text-muted">
+                {user.email} <span className="uppercase text-xs ml-2 bg-chrome-raised text-chrome-text px-1.5 py-0.5 rounded-sm">{user.role}</span>
               </div>
             </header>
             <div className="flex flex-1 overflow-hidden">
-              <nav className="w-64 border-r border-border bg-structure/50 shrink-0 flex flex-col justify-between">
+              <nav className="chrome-scope w-64 border-r border-chrome-border bg-chrome shrink-0 flex flex-col justify-between">
                 <div className="p-4 space-y-1">
                   {/* Rendered from lib/labels, so the sidebar cannot disagree
                       with a page heading about what a role can see. UX only —
@@ -55,13 +55,13 @@ export default async function RootLayout({
                     <Link
                       key={href}
                       href={href}
-                      className="block px-3 py-2 text-sm text-text hover:bg-canvas font-medium"
+                      className="block px-3 py-2 text-sm text-chrome-text hover:bg-chrome-hover rounded-sm font-medium"
                     >
                       {label}
                     </Link>
                   ))}
                 </div>
-                <div className="p-4 border-t border-border">
+                <div className="p-4 border-t border-chrome-border">
                   <SignOutButton />
                 </div>
               </nav>

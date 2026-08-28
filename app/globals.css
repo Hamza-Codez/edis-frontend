@@ -21,13 +21,42 @@
   /* Action */
   --color-accent: #60241E;
   --color-accent-hover: #4D1D18;
-  
+
+  /* Chrome — the dark maroon shell. Persistent navigation and header sit on
+     this, so it is deliberately darker than the accent: an accent that is also
+     a large background stops reading as a call to action. */
+  --color-chrome: #3E1714;
+  --color-chrome-raised: #4D1D18;
+  --color-chrome-hover: #60241E;
+  --color-chrome-border: #6B3A33;
+  --color-chrome-text: #F7F2F1;
+  /* Measured against the light end of the card gradient (#8A3A31), the
+     hardest surface it lands on: 5.04:1. The previous #C6ADA9 was 3.64:1
+     there — fine on the sidebar, failing on a card. */
+  --color-chrome-text-muted: #E0CDCA;
+
+  /* Card gradient — dark maroon rising to a lighter maroon, so a grid of cards
+     carries depth without a drop shadow (spec07 §3 keeps shadows for floating
+     things). Both ends stay dark enough for white text: the light end is 4.9:1
+     against #FFFFFF, above the 4.5:1 the contract requires. */
+  --color-card-from: #3E1714;
+  --color-card-to: #8A3A31;
+  --color-card-border: #6B3A33;
+
   /* Status — semantic names. `--color-*: initial` above wipes Tailwind's
      default palette, so any utility naming a colour not defined here compiles
      to nothing, silently. Add the token before using the class. */
   --color-success: #2D6B3E;
   --color-warning: #B8860B;
   --color-danger: #B34A44;
+
+  /* Status on dark chrome. Red on maroon cannot separate however light it is
+     made — it reads as part of the surface — so alarm moves to a warm amber,
+     which is legible against maroon and still unmistakably not "normal".
+     All measured against #8A3A31, the light end of the card gradient. */
+  --color-success-on-dark: #A8E6BC;
+  --color-warning-on-dark: #FFD9A8;
+  --color-danger-on-dark: #FFC9A8;
 
   /* Badge Status */
   --color-badge-pending-bg: #EAE8E1;
@@ -43,10 +72,14 @@
   --color-badge-failed-bg: #F4D3D1;
   --color-badge-failed-text: #8C241D;
 
-  /* Controls */
+  /* Controls.
+     control-border is separated from the decorative `border` on purpose: the
+     boundary of an input or a button is a UI component and must reach 3:1, and
+     at #D1CEC5 it was 1.57:1 — an input whose edge nobody can see. A hairline
+     dividing two panels carries no such requirement, so `border` stays light. */
   --color-control: #EAE8E1;
   --color-control-hover: #D1CEC5;
-  --color-control-border: #D1CEC5;
+  --color-control-border: #857F73;
 
   /* Radii */
   --radius-none: 0px;
@@ -59,8 +92,50 @@
   --font-heading: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Native controls — a range thumb, a select arrow and a checkbox are painted by
+   the browser using the OS accent, which is sky blue on Windows regardless of
+   anything in the theme above. This is the only way to reach them. */
+:root {
+  accent-color: var(--color-accent);
+  color-scheme: light;
+}
+
+::selection {
+  background-color: var(--color-accent);
+  color: var(--color-text-on-accent);
+}
+
+/* Inside the dark shell the light accent disappears; the raised maroon reads. */
+.chrome-scope {
+  accent-color: var(--color-chrome-text);
+}
+
+.chrome-scope ::selection {
+  background-color: var(--color-chrome-text);
+  color: var(--color-chrome);
+}
+
 @layer utilities {
   .font-space-grotesk {
     font-family: var(--font-heading);
+  }
+
+  /* Maroon to warm grey, used for cards that should carry weight without a
+     shadow. Declared once so a gradient cannot drift between screens. */
+  .card-maroon {
+    background-image: linear-gradient(
+      135deg,
+      var(--color-card-from) 0%,
+      var(--color-card-to) 100%
+    );
+  }
+
+  /* Same ramp, reversed, so adjacent panels do not read as one flat block. */
+  .card-maroon-reverse {
+    background-image: linear-gradient(
+      135deg,
+      var(--color-card-to) 0%,
+      var(--color-card-from) 100%
+    );
   }
 }

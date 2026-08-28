@@ -27,7 +27,7 @@ export function SignOutButton() {
     <button 
       onClick={handleSignOut} 
       disabled={inflight}
-      className="flex items-center gap-2 px-3 py-2 text-sm text-text-muted hover:text-text hover:bg-canvas transition-colors w-full text-left"
+      className="flex items-center gap-2 px-3 py-2 text-sm text-chrome-text-muted hover:text-chrome-text hover:bg-chrome-hover rounded-sm transition-colors w-full text-left"
     >
       <LogOut className="h-4 w-4" />
       <span>Sign Out</span>

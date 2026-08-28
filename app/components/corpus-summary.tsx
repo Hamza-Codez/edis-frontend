@@ -40,7 +40,7 @@ export function CorpusSummary() {
   }, []);
 
   if (failed || !counts) {
-    return <div className="h-[74px] rounded-md border border-border bg-structure/50" />;
+    return <div className="h-[74px] rounded-md border border-card-border card-maroon opacity-40" />;
   }
 
   const empty = counts.indexed === 0 && counts.processing === 0 && counts.failed === 0;
@@ -56,7 +56,7 @@ export function CorpusSummary() {
   }
 
   return (
-    <div className="grid grid-cols-3 divide-x divide-border overflow-hidden rounded-md border border-border bg-surface">
+    <div className="card-maroon grid grid-cols-3 divide-x divide-chrome-border overflow-hidden rounded-md border border-card-border">
       <Stat label="Searchable" value={counts.indexed} hint="ready to answer from" />
       <Stat label="Processing" value={counts.processing} hint="not yet searchable" />
       <Stat
@@ -83,12 +83,14 @@ function Stat({
   return (
     <div className="px-5 py-4">
       <div
-        className={`font-space-grotesk text-2xl font-bold tabular-nums ${alarming ? 'text-danger' : 'text-text'}`}
+        className={`font-space-grotesk text-2xl font-bold tabular-nums ${
+          alarming ? 'text-danger-on-dark' : 'text-chrome-text'
+        }`}
       >
         {value}
       </div>
-      <div className="text-sm font-medium text-text">{label}</div>
-      <div className="text-xs text-text-muted">{hint}</div>
+      <div className="text-sm font-medium text-chrome-text">{label}</div>
+      <div className="text-xs text-chrome-text-muted">{hint}</div>
     </div>
   );
 }
