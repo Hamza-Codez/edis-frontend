@@ -108,19 +108,19 @@ export default function QueriesPage() {
                 type="button"
                 data-testid={`tile-${key}`}
                 onClick={() => setFilter(filter === key ? 'all' : key)}
-                className={`rounded-md border p-4 text-left hover:border-accent focus:ring-2 focus:ring-accent focus:outline-none ${
-                  filter === key ? 'border-accent bg-surface' : 'border-border bg-structure'
+                className={`card-maroon rounded-md border p-4 text-left focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-canvas focus:outline-none ${
+                  filter === key ? 'border-chrome-text' : 'border-card-border hover:border-chrome-text-muted'
                 }`}
               >
                 <div
                   className={`font-space-grotesk text-2xl font-bold tabular-nums ${
-                    highlight ? 'text-danger' : 'text-text'
+                    highlight ? 'text-danger-on-dark' : 'text-chrome-text'
                   }`}
                 >
                   {rows ? count : '—'}
                 </div>
-                <div className="text-sm font-medium text-text">{label}</div>
-                <div className="mt-1 text-xs leading-snug text-text-muted">{meaning}</div>
+                <div className="text-sm font-medium text-chrome-text">{label}</div>
+                <div className="mt-1 text-xs leading-snug text-chrome-text-muted">{meaning}</div>
               </button>
             );
           })}
@@ -133,7 +133,7 @@ export default function QueriesPage() {
 
       <section className="overflow-hidden rounded-md border border-border bg-surface">
         <table className="w-full text-sm">
-          <thead className="border-b border-border bg-structure text-left text-xs text-text-muted">
+          <thead className="border-b border-chrome-border bg-chrome text-left text-xs text-chrome-text-muted">
             <tr>
               <th className="px-4 py-2 font-medium">Question</th>
               <th className="px-4 py-2 font-medium">Outcome</th>

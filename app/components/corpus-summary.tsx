@@ -40,7 +40,7 @@ export function CorpusSummary() {
   }, []);
 
   if (failed || !counts) {
-    return <div className="h-[74px] rounded-md border border-card-border card-maroon opacity-40" />;
+    return <div className="h-[74px] rounded-md border border-ink-border bg-ink opacity-40" />;
   }
 
   const empty = counts.indexed === 0 && counts.processing === 0 && counts.failed === 0;
@@ -56,7 +56,7 @@ export function CorpusSummary() {
   }
 
   return (
-    <div className="card-maroon grid grid-cols-3 divide-x divide-chrome-border overflow-hidden rounded-md border border-card-border">
+    <div className="grid grid-cols-3 divide-x divide-ink-border overflow-hidden rounded-md border border-ink-border bg-ink">
       <Stat label="Searchable" value={counts.indexed} hint="ready to answer from" />
       <Stat label="Processing" value={counts.processing} hint="not yet searchable" />
       <Stat

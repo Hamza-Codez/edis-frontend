@@ -35,6 +35,13 @@
      there — fine on the sidebar, failing on a card. */
   --color-chrome-text-muted: #E0CDCA;
 
+  /* Ink — the near-black used for figure tiles, where a number should read as
+     data rather than as chrome. Warm rather than pure #000 so it belongs with
+     the maroon instead of fighting it. */
+  --color-ink: #141110;
+  --color-ink-raised: #221D1B;
+  --color-ink-border: #3A3230;
+
   /* Card gradient — dark maroon rising to a lighter maroon, so a grid of cards
      carries depth without a drop shadow (spec07 §3 keeps shadows for floating
      things). Both ends stay dark enough for white text: the light end is 4.9:1

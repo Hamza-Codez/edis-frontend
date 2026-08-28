@@ -44,6 +44,10 @@ const PAIRS: [string, string, string, number][] = [
   ['chrome muted on card, light end', 'chrome-text-muted', 'card-to', 4.5],
   ['alarm figure on card, light end', 'danger-on-dark', 'card-to', 4.5],
   ['success figure on card, light end', 'success-on-dark', 'card-to', 4.5],
+  ['figure on ink tile', 'chrome-text', 'ink', 4.5],
+  ['label on ink tile', 'chrome-text-muted', 'ink', 4.5],
+  ['alarm figure on ink tile', 'danger-on-dark', 'ink', 4.5],
+  ['table head label on maroon chrome', 'chrome-text-muted', 'chrome', 4.5],
 ];
 
 describe('spec07 §2 contrast targets', () => {

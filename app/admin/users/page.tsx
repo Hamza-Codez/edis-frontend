@@ -136,7 +136,7 @@ export default function AdminUsersPage() {
 
       <div className="overflow-hidden rounded-md border border-border bg-surface">
         <table className="w-full text-sm">
-          <thead className="border-b border-border bg-structure text-left text-xs text-text-muted">
+          <thead className="border-b border-chrome-border bg-chrome text-left text-xs text-chrome-text-muted">
             <tr>
               <th className="px-4 py-2 font-medium">Email</th>
               <th className="px-4 py-2 font-medium">Role</th>
