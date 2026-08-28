@@ -99,7 +99,7 @@ export default function AskPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-8 pb-16">
       <header className="space-y-1">
-        <h1 className="font-space-grotesk text-2xl font-bold text-text">Ask</h1>
+        <h1 className="font-space-grotesk text-2xl font-bold text-heading">Ask</h1>
         <p className="text-sm text-text-muted">
           Answers come only from indexed documents. Every sentence is numbered to the passage it
           came from.

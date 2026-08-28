@@ -74,7 +74,7 @@ export default function AdminUsersPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-8 pb-16">
       <header className="space-y-1">
-        <h1 className="font-space-grotesk text-2xl font-bold text-text">Users</h1>
+        <h1 className="font-space-grotesk text-2xl font-bold text-heading">Users</h1>
         <p className="text-sm text-text-muted">
           Everyone can read and question the whole corpus. Only admins manage users, and only an
           uploader or an admin can remove a document.
@@ -136,7 +136,7 @@ export default function AdminUsersPage() {
 
       <div className="overflow-hidden rounded-md border border-border bg-surface">
         <table className="w-full text-sm">
-          <thead className="border-b border-chrome-border bg-chrome text-left text-xs text-chrome-text-muted">
+          <thead className="border-b border-chrome-border bg-chrome text-left text-xs text-chrome-text">
             <tr>
               <th className="px-4 py-2 font-medium">Email</th>
               <th className="px-4 py-2 font-medium">Role</th>

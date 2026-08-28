@@ -136,6 +136,16 @@ separately from the static checks because a name is computed from the rendered
 DOM. It caught the case it exists for: a citation chip renders as a bare digit
 and announces as "1" without its `aria-label`.
 
+### Heading colour, and why it is not the accent
+
+Page headings are maroon, on a `heading` token rather than on `accent`. §2
+reserves the accent "exclusively for the primary call to action", and a heading
+on every page in that exact colour would blunt the one button that means *do
+this*. The heading maroon is a step deeper — `#4A1C17` against the accent's
+`#60241E` — so the button stays the brightest maroon on the page and still
+reads as the action. Measured at 12.98:1 on canvas, above the 7:1 §2 prefers
+for primary copy.
+
 ### Divergence: status token names
 
 §2 names the status colours `on-track`, `at-risk`, `overdue`. They ship as

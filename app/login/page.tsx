@@ -39,7 +39,7 @@ export default function LoginPage() {
   return (
     <div className="flex h-full items-center justify-center bg-canvas">
       <div className="w-full max-w-md bg-surface border border-border p-8">
-        <h1 className="font-space-grotesk font-semibold text-2xl text-text mb-6">Sign In</h1>
+        <h1 className="font-space-grotesk font-semibold text-2xl text-heading mb-6">Sign In</h1>
         
         {error && (
           <div className="mb-4 bg-danger/10 text-danger px-4 py-2 text-sm border border-danger/20">

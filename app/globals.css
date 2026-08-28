@@ -14,6 +14,11 @@
 
   /* Text */
   --color-text: #1C1B1A;
+  /* Page headings. A deeper maroon than the accent on purpose: §2 reserves the
+     accent for the call to action, and a heading on every page in that exact
+     colour would blunt the one button that means "do this". At 12.98:1 on
+     canvas it also clears the 7:1 the contract prefers for primary copy. */
+  --color-heading: #4A1C17;
   --color-text-muted: #5C5B5A;
   --color-text-inverse: #FFFFFF;
   --color-text-on-accent: #FFFFFF;

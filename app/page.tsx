@@ -32,7 +32,7 @@ export default async function Home() {
   return (
     <div className="mx-auto max-w-4xl space-y-8 pb-16">
       <header className="space-y-1">
-        <h1 className="font-space-grotesk text-2xl font-bold text-text">
+        <h1 className="font-space-grotesk text-2xl font-bold text-heading">
           {user ? `Welcome back, ${user.email.split('@')[0]}` : 'Enterprise Document Intelligence'}
         </h1>
         <p className="text-sm text-text-muted">

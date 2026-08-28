@@ -47,7 +47,11 @@ const PAIRS: [string, string, string, number][] = [
   ['figure on ink tile', 'chrome-text', 'ink', 4.5],
   ['label on ink tile', 'chrome-text-muted', 'ink', 4.5],
   ['alarm figure on ink tile', 'danger-on-dark', 'ink', 4.5],
-  ['table head label on maroon chrome', 'chrome-text-muted', 'chrome', 4.5],
+  ['table head label on maroon chrome', 'chrome-text', 'chrome', 4.5],
+  // §2 prefers 7:1 for primary copy, and a page heading is the most primary
+  // copy on the screen.
+  ['page heading on canvas', 'heading', 'canvas', 7],
+  ['page heading on surface', 'heading', 'surface', 7],
 ];
 
 describe('spec07 §2 contrast targets', () => {

@@ -84,7 +84,7 @@ export default function QueriesPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-8 pb-16">
       <header className="space-y-1">
-        <h1 className="font-space-grotesk text-2xl font-bold text-text">Query log</h1>
+        <h1 className="font-space-grotesk text-2xl font-bold text-heading">Query log</h1>
         <p className="text-sm text-text-muted">
           {role ? queryScopeLabel(role) : 'Your questions.'} What the system did with
           each, and why. Append-only.
@@ -133,7 +133,7 @@ export default function QueriesPage() {
 
       <section className="overflow-hidden rounded-md border border-border bg-surface">
         <table className="w-full text-sm">
-          <thead className="border-b border-chrome-border bg-chrome text-left text-xs text-chrome-text-muted">
+          <thead className="border-b border-chrome-border bg-chrome text-left text-xs text-chrome-text">
             <tr>
               <th className="px-4 py-2 font-medium">Question</th>
               <th className="px-4 py-2 font-medium">Outcome</th>

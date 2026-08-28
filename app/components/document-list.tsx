@@ -186,10 +186,10 @@ export default function DocumentList() {
         <table className="min-w-full divide-y divide-border">
           <thead className="bg-chrome">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-chrome-text-muted uppercase tracking-wider">Document</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-chrome-text-muted uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-chrome-text-muted uppercase tracking-wider">Uploaded</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-chrome-text-muted uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-chrome-text uppercase tracking-wider">Document</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-chrome-text uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-chrome-text uppercase tracking-wider">Uploaded</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-chrome-text uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-surface divide-y divide-border">

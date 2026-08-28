@@ -47,7 +47,7 @@ export default function QueryDetailPage({ params }: { params: Promise<{ id: stri
       {row && (
         <>
           <header className="space-y-3">
-            <h1 className="font-space-grotesk text-xl font-bold text-text">{row.question}</h1>
+            <h1 className="font-space-grotesk text-xl font-bold text-heading">{row.question}</h1>
             <div className="flex flex-wrap items-center gap-3 text-xs text-text-muted">
               <OutcomeBadge outcome={row.outcome} />
               <span>{new Date(row.created_at).toLocaleString()}</span>

@@ -48,7 +48,7 @@ export default function SearchPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex flex-col space-y-2">
-        <h1 className="font-space-grotesk text-2xl font-bold text-text">Retrieval Inspector</h1>
+        <h1 className="font-space-grotesk text-2xl font-bold text-heading">Retrieval Inspector</h1>
         <p className="text-text-muted">Diagnostic tool for inspecting un-synthesized chunk rankings.</p>
       </div>
 

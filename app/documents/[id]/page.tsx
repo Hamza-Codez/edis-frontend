@@ -53,7 +53,7 @@ export default async function DocumentDetailPage({ params }: { params: { id: str
     <div className="p-8 max-w-5xl mx-auto space-y-8">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-space-grotesk font-bold text-text flex items-center gap-3">
+          <h1 className="text-3xl font-space-grotesk font-bold text-heading flex items-center gap-3">
             <FileIcon className="w-8 h-8 text-accent" />
             {doc.filename}
           </h1>
