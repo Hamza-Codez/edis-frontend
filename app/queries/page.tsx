@@ -99,12 +99,12 @@ export default function QueriesPage() {
                 type="button"
                 data-testid={`tile-${key}`}
                 onClick={() => setFilter(filter === key ? 'all' : key)}
-                className={`rounded-lg border p-4 text-left hover:border-accent focus:ring-2 focus:ring-accent focus:outline-none ${
+                className={`rounded-md border p-4 text-left hover:border-accent focus:ring-2 focus:ring-accent focus:outline-none ${
                   filter === key ? 'border-accent bg-surface' : 'border-border bg-structure'
                 }`}
               >
                 <div
-                  className={`font-space-grotesk text-2xl font-bold ${
+                  className={`font-space-grotesk text-2xl font-bold tabular-nums ${
                     highlight ? 'text-danger' : 'text-text'
                   }`}
                 >
@@ -122,7 +122,7 @@ export default function QueriesPage() {
         </p>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-border bg-surface">
+      <section className="overflow-hidden rounded-md border border-border bg-surface">
         <table className="w-full text-sm">
           <thead className="border-b border-border bg-structure text-left text-xs text-text-muted">
             <tr>
@@ -158,15 +158,15 @@ export default function QueriesPage() {
                 <td className="px-4 py-2">
                   <OutcomeBadge outcome={row.outcome} />
                 </td>
-                <td className="px-4 py-2 font-mono text-xs text-text-muted">
+                <td className="px-4 py-2 font-mono text-xs tabular-nums text-text-muted">
                   {row.top_similarity === null ? '—' : row.top_similarity.toFixed(3)}
                 </td>
-                <td className="px-4 py-2 font-mono text-xs text-text-muted">
+                <td className="px-4 py-2 font-mono text-xs tabular-nums text-text-muted">
                   {row.prompt_tokens || row.completion_tokens
                     ? `${row.prompt_tokens ?? 0}/${row.completion_tokens ?? 0}`
                     : '—'}
                 </td>
-                <td className="px-4 py-2 text-xs text-text-muted">
+                <td className="px-4 py-2 text-xs tabular-nums text-text-muted">
                   {new Date(row.created_at).toLocaleString()}
                 </td>
               </tr>

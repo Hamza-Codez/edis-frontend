@@ -55,7 +55,7 @@ export default function QueryDetailPage({ params }: { params: Promise<{ id: stri
             </div>
           </header>
 
-          <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-4">
+          <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-border bg-border sm:grid-cols-4">
             <Field
               label="Top similarity"
               value={row.top_similarity === null ? '—' : row.top_similarity.toFixed(4)}
@@ -79,7 +79,7 @@ export default function QueryDetailPage({ params }: { params: Promise<{ id: stri
           </dl>
 
           {row.outcome === 'insufficient_context' && !row.answer_json && (
-            <p className="rounded-lg border border-dashed border-border bg-structure/50 px-4 py-3 text-sm text-text-muted">
+            <p className="rounded-md border border-dashed border-border bg-structure/50 px-4 py-3 text-sm text-text-muted">
               Below the confidence threshold, so the model was never called. No tokens were spent.
             </p>
           )}
@@ -112,7 +112,7 @@ export default function QueryDetailPage({ params }: { params: Promise<{ id: stri
                 Exactly what the model returned, before validation. For a rejected answer this is
                 where the invented citation is visible.
               </p>
-              <pre className="overflow-x-auto rounded-lg border border-border bg-structure p-4 text-xs leading-relaxed text-text">
+              <pre className="overflow-x-auto rounded-md border border-border bg-structure p-4 text-xs leading-relaxed text-text">
                 {JSON.stringify(row.answer_json, null, 2)}
               </pre>
             </section>
@@ -126,7 +126,7 @@ export default function QueryDetailPage({ params }: { params: Promise<{ id: stri
 function Field({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
     <div className="bg-surface px-4 py-3">
-      <div className="font-mono text-sm text-text">{value}</div>
+      <div className="font-mono text-sm tabular-nums text-text">{value}</div>
       <div className="text-xs font-medium text-text">{label}</div>
       <div className="text-xs text-text-muted">{hint}</div>
     </div>

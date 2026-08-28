@@ -38,7 +38,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex h-full items-center justify-center bg-canvas">
-      <div className="w-full max-w-md bg-surface border border-border p-8 shadow-sm">
+      <div className="w-full max-w-md bg-surface border border-border p-8">
         <h1 className="font-space-grotesk font-semibold text-2xl text-text mb-6">Sign In</h1>
         
         {error && (

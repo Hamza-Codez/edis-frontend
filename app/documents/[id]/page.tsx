@@ -74,7 +74,7 @@ export default async function DocumentDetailPage({ params }: { params: { id: str
         <div className="space-y-6 mt-8">
           <h2 className="text-xl font-semibold text-text border-b border-border pb-2">Extracted Content</h2>
           {doc.pages.map((page: { id: number; page_number: number; text: string }) => (
-            <div key={page.id} className="bg-surface border border-border rounded-lg p-6 shadow-sm">
+            <div key={page.id} className="bg-surface border border-border rounded-md p-6">
               <h3 className="text-sm font-medium text-text-muted mb-4 pb-2 border-b border-border uppercase tracking-wide">
                 {unitName} {page.page_number}
               </h3>
@@ -85,7 +85,7 @@ export default async function DocumentDetailPage({ params }: { params: { id: str
           ))}
         </div>
       ) : (
-        <div className="bg-surface border border-border rounded-lg p-8 text-center mt-8">
+        <div className="bg-surface border border-border rounded-md p-8 text-center mt-8">
           <p className="text-text-muted">No content extracted yet. Document status: <span className="font-semibold">{doc.status}</span></p>
         </div>
       )}

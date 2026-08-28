@@ -52,7 +52,7 @@ export default function SearchPage() {
         <p className="text-text-muted">Diagnostic tool for inspecting un-synthesized chunk rankings.</p>
       </div>
 
-      <form onSubmit={handleSearch} className="flex gap-4 p-4 bg-structure border border-border rounded-lg shadow-sm items-end">
+      <form onSubmit={handleSearch} className="flex gap-4 p-4 bg-structure border border-border rounded-md items-end">
         <div className="flex-1">
           <label htmlFor="question" className="block text-sm font-medium text-text-muted mb-1">Question</label>
           <input
@@ -111,7 +111,7 @@ export default function SearchPage() {
       )}
 
       {results && results.length === 0 && (
-        <div className="p-12 text-center text-text-muted border border-border border-dashed rounded-lg">
+        <div className="p-12 text-center text-text-muted border border-border border-dashed rounded-md">
           No chunks matched.
         </div>
       )}
@@ -119,7 +119,7 @@ export default function SearchPage() {
       {results && results.length > 0 && (
         <div className="space-y-4">
           {results.map((chunk, index) => (
-            <div key={`${chunk.document_id}-${chunk.ordinal}`} className={`bg-structure border rounded-lg shadow-sm overflow-hidden ${chunk.similarity < threshold ? 'border-warning/50' : 'border-border'}`}>
+            <div key={`${chunk.document_id}-${chunk.ordinal}`} className={`bg-structure border rounded-md overflow-hidden ${chunk.similarity < threshold ? 'border-warning/50' : 'border-border'}`}>
               {chunk.similarity < threshold && (
                 <div className="bg-warning/10 text-warning px-4 py-1 text-xs font-medium border-b border-warning/20">
                   Below Answer Threshold

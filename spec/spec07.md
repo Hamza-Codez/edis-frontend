@@ -80,14 +80,49 @@ Before finalizing any UI components, the following tests must be implemented:
 
 ---
 
-## Status — 2026-08-28
+## As Built — 2026-08-28
 
-**This is a design brief, not a phase spec.** It has no backend counterpart and
-does not follow the `specNN` pairing rule, so it carries no *As Built* section
-and no phase depends on it.
+**This is a design contract, and it is binding on the UI.** It has no backend
+counterpart, so it sits outside the `specNN` pairing rule and no phase depends
+on it — but that is a statement about numbering, not about authority. An earlier
+note here called it "not a phase spec" and implied the shipped UI wins by
+default. That was wrong, and it was written without reading the document.
 
-Where it and the shipped UI disagree, the shipped UI wins and the divergence is
-recorded in the *As Built* of the spec that owns the screen. The design tokens
-it describes live in `app/globals.css`, which is authoritative — note that
-`--color-*: initial` there removes Tailwind's default palette entirely, so any
-colour named in this document must exist as a token or it compiles to nothing.
+### Audit against the shipped UI
+
+Nothing in this contract was enforced by the type check or the build, and the UI
+had drifted from it in three measurable ways:
+
+| Rule | Found | Now |
+|---|---|---|
+| §3 `md` (4–6px) is the maximum rounding | 22 × `rounded-lg` (8px, a Tailwind default) | all `rounded-md` |
+| §3 `full` is for dots, avatars and count badges only | a status pill on `rounded-full` | `rounded-sm`, the badge step |
+| §3 borders over shadows, shadows only for floating things | 7 × `shadow-sm` on inline panels | removed |
+| §1 Q2 tabular numerals mandatory for tables and figures | none anywhere | applied to every count, score and timestamp |
+| §5.1 no raw hex in component source | none — already held | guarded |
+
+The radius drift had a specific cause worth recording: `globals.css` sets
+`--color-*: initial`, which removes Tailwind's colour palette, but does **not**
+reset the radius scale. So `rounded-lg` kept resolving to the framework default
+and quietly overshot the maximum this document sets. A replaced scale fails
+loudly; an un-replaced one drifts silently.
+
+### §5 guard tests — now implemented
+
+`tests/design-contract.test.ts` covers all three the section asks for, plus the
+radius and shadow rules, because those are the ones that actually broke. Six
+assertions, run in the normal suite.
+
+### Open interpretation
+
+§2 reserves the accent colour "exclusively for the primary call to action". The
+UI also uses `accent` for citation chips, links and the active-source border.
+Those are interactive controls rather than decoration, so this reads as within
+the intent — but it is a broader use than the words allow, and it is recorded
+here rather than settled quietly. Tighten it if the accent starts to feel cheap.
+
+### Not verified
+
+Every contrast ratio in §2 is still a target, not a measurement. `sops.md §6`
+is explicit that this needs a real browser and computed styles, and no such
+check has been run.

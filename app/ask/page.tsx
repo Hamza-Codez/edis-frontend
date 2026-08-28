@@ -161,7 +161,7 @@ export default function AskPage() {
         */
         <section
           data-testid="refusal"
-          className="space-y-3 rounded-lg border-2 border-dashed border-border bg-structure/50 p-6"
+          className="space-y-3 rounded-md border-2 border-dashed border-border bg-structure/50 p-6"
         >
           <h2 className="font-space-grotesk font-bold text-text">No supported answer</h2>
           <p className="text-text-muted">{result.message}</p>
@@ -175,7 +175,7 @@ export default function AskPage() {
 
       {result?.outcome === 'answered' && result.answer && (
         <div data-testid="answer" className="space-y-8">
-          <section className="space-y-4 rounded-lg border border-border bg-surface p-6">
+          <section className="space-y-4 rounded-md border border-border bg-surface p-6">
             {/*
               Rendered claim by claim, never concatenated. The structure is the
               guarantee: flattening loses which citation belongs to which
@@ -218,7 +218,7 @@ export default function AskPage() {
                   ref={(el) => {
                     entryRefs.current.set(citation.chunk_id, el);
                   }}
-                  className={`overflow-hidden rounded-lg border bg-structure ${
+                  className={`overflow-hidden rounded-md border bg-structure ${
                     activeChunkId === citation.chunk_id ? 'border-accent' : 'border-border'
                   }`}
                 >
@@ -245,7 +245,7 @@ export default function AskPage() {
                         The source document has been removed
                       </span>
                     )}
-                    <span className="font-mono text-xs text-text-muted">
+                    <span className="font-mono text-xs tabular-nums text-text-muted">
                       {citation.similarity.toFixed(2)}
                     </span>
                     {isOpen ? (

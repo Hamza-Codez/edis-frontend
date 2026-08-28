@@ -40,13 +40,13 @@ export function CorpusSummary() {
   }, []);
 
   if (failed || !counts) {
-    return <div className="h-[74px] rounded-lg border border-border bg-structure/50" />;
+    return <div className="h-[74px] rounded-md border border-border bg-structure/50" />;
   }
 
   const empty = counts.indexed === 0 && counts.processing === 0 && counts.failed === 0;
   if (empty) {
     return (
-      <div className="rounded-lg border border-dashed border-border bg-structure/50 px-5 py-4 text-sm text-text-muted">
+      <div className="rounded-md border border-dashed border-border bg-structure/50 px-5 py-4 text-sm text-text-muted">
         No documents yet. <Link href="/documents" className="text-accent hover:underline">
           Upload one
         </Link>{' '}
@@ -56,7 +56,7 @@ export function CorpusSummary() {
   }
 
   return (
-    <div className="grid grid-cols-3 divide-x divide-border overflow-hidden rounded-lg border border-border bg-surface">
+    <div className="grid grid-cols-3 divide-x divide-border overflow-hidden rounded-md border border-border bg-surface">
       <Stat label="Searchable" value={counts.indexed} hint="ready to answer from" />
       <Stat label="Processing" value={counts.processing} hint="not yet searchable" />
       <Stat
@@ -83,7 +83,7 @@ function Stat({
   return (
     <div className="px-5 py-4">
       <div
-        className={`font-space-grotesk text-2xl font-bold ${alarming ? 'text-danger' : 'text-text'}`}
+        className={`font-space-grotesk text-2xl font-bold tabular-nums ${alarming ? 'text-danger' : 'text-text'}`}
       >
         {value}
       </div>

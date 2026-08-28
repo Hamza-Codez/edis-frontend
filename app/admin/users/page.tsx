@@ -94,7 +94,7 @@ export default function AdminUsersPage() {
 
       <form
         onSubmit={createUser}
-        className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-structure p-4"
+        className="flex flex-wrap items-end gap-3 rounded-md border border-border bg-structure p-4"
       >
         <Labelled label="Email" className="min-w-52 flex-1">
           <input
@@ -134,7 +134,7 @@ export default function AdminUsersPage() {
         </button>
       </form>
 
-      <div className="overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="overflow-hidden rounded-md border border-border bg-surface">
         <table className="w-full text-sm">
           <thead className="border-b border-border bg-structure text-left text-xs text-text-muted">
             <tr>

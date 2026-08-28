@@ -47,7 +47,7 @@ export default async function Home() {
           <Link
             key={href}
             href={href}
-            className="group flex flex-col gap-2 rounded-lg border border-border bg-surface p-5 hover:border-accent focus:ring-2 focus:ring-accent focus:outline-none"
+            className="group flex flex-col gap-2 rounded-md border border-border bg-surface p-5 hover:border-accent focus:ring-2 focus:ring-accent focus:outline-none"
           >
             <Icon size={20} className="text-accent" />
             <span className="font-space-grotesk font-bold text-text">{title}</span>
@@ -56,7 +56,7 @@ export default async function Home() {
         ))}
       </section>
 
-      <section className="rounded-lg border border-border bg-structure/50 p-5">
+      <section className="rounded-md border border-border bg-structure/50 p-5">
         <h2 className="mb-2 flex items-center gap-2 font-space-grotesk font-bold text-text">
           <FileText size={16} className="text-text-muted" />
           How answers are produced

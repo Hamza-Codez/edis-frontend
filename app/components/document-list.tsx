@@ -90,7 +90,7 @@ export default function DocumentList() {
   };
 
   const getBadgeClass = (status: DocumentStatus) => {
-    const base = "px-2 py-1 rounded-full text-xs font-medium border border-border inline-flex items-center capitalize shadow-sm transition-all";
+    const base = "px-2 py-1 rounded-sm text-xs font-medium border border-border inline-flex items-center capitalize transition-all";
     switch (status) {
       case 'pending': return `${base} bg-[var(--color-badge-pending-bg)] text-[var(--color-badge-pending-text)]`;
       case 'extracting': return `${base} bg-[var(--color-badge-extracting-bg)] text-[var(--color-badge-extracting-text)]`;
@@ -104,7 +104,7 @@ export default function DocumentList() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-surface border border-border rounded-lg p-6 shadow-sm">
+      <div className="bg-surface border border-border rounded-md p-6">
         <h2 className="text-lg font-semibold text-text mb-4">Upload Document</h2>
         <div className="flex flex-col items-start gap-4">
           <label className={`
@@ -136,7 +136,7 @@ export default function DocumentList() {
         </div>
       </div>
 
-      <div className="bg-surface border border-border rounded-lg overflow-hidden shadow-sm">
+      <div className="bg-surface border border-border rounded-md overflow-hidden">
         <table className="min-w-full divide-y divide-border">
           <thead className="bg-canvas">
             <tr>
