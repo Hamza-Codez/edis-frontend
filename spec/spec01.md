@@ -70,6 +70,20 @@ and a duplicate login is a wasted session row.
 
 ---
 
-## 7. As Built
+## As Built — 2026-08-28
 
-*Amend after implementation.*
+Login, session shell and redirect guard work locally. **Not verified on a
+deployed site.**
+
+**Divergences**
+
+- The redirect guard lives in `proxy.ts` (see `spec00` *As Built*) and had never
+  executed until the export name was corrected.
+- `lib/session.ts` returns the generated `CurrentUser` type rather than a
+  hand-written shape.
+
+**Note**
+
+The login form still shows the backend message verbatim, including the identical
+401 for unknown email, wrong password and deactivated account. Nothing in the UI
+distinguishes them, which is the point.

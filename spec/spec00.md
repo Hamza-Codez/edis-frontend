@@ -189,6 +189,28 @@ Three guard tests that earn their place before there is anything to guard:
 
 ---
 
-## 7. As Built
+## As Built — 2026-08-28
 
-*Amend after implementation.*
+The proxy works locally: `/api/health` returns JSON and login succeeds through
+the frontend origin with both cookies set correctly. **Not deployed**, so
+`API_ORIGIN` has never been exercised for Production or Preview.
+
+**Divergences**
+
+- **`proxy.ts` exports `proxy`, not `middleware`.** Next.js 16 renamed
+  `middleware.ts` to `proxy.ts` and expects the matching export name. Exported as
+  `middleware` it is not a warning — `next build` fails outright, so the login
+  redirect guard had never run and the app would never have deployed.
+- **`next.config.ts` warns loudly in development when `API_ORIGIN` is missing.**
+  Without it the rewrite is not registered at all, `/api/*` falls through to the
+  app and returns the HTML shell, and the only symptom is
+  `HTTP error! status: 404` on login — a message pointing nowhere near the cause.
+  This cost a debugging session; the warning names the file, the variable, and
+  the need to restart.
+- `.gitignore` gained a `!.env.example` exception. The Next.js default `.env*`
+  pattern swept the committed template that `rules.md` requires.
+
+**The guard tests earned their place**
+
+`app/api/**` is still empty and no test file sits inside the routable app
+directory. Both would fail in ways that name neither the file nor the cause.

@@ -101,6 +101,28 @@ Submit is disabled while a request is in flight.
 
 ---
 
-## 9. As Built
+## As Built — 2026-08-28
 
-*Amend after implementation.*
+Verified against real documents and real providers: an in-corpus question renders
+claims with working citation chips, and an out-of-corpus question renders the
+refusal.
+
+**Divergences**
+
+- **Sources are collapsed by default.** The spec called for full chunk text
+  always visible. Implemented literally, every cited passage rendered its full raw
+  extraction inline — hundreds of lines of broken PDF text burying a
+  three-sentence answer. The guarantee was served and its purpose defeated:
+  evidence you cannot read is evidence you cannot check. Full text is still never
+  truncated, it is one click away, and a citation chip both highlights *and*
+  expands the passage behind that sentence.
+- **The collapsed preview flattens whitespace; the expanded view does not.**
+  Extracted PDF text carries hard line breaks mid-sentence, which read as noise in
+  a preview and are the passage as stored when expanded.
+- **No pipeline-stage indicator.** `spec05 §6` asked for
+  `retrieving → synthesising → verifying`. The backend returns one response and
+  reports no intermediate stages, so those transitions could only have been faked
+  on a timer. One honest line instead. Real staging needs an SSE endpoint that
+  does not exist.
+- `scrollIntoView` is called optionally — absent in jsdom and some embedded
+  webviews, and revealing a passage must not depend on scrolling to it.

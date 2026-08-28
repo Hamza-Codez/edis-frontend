@@ -77,3 +77,17 @@ Before finalizing any UI components, the following tests must be implemented:
 1. **No Raw Literals:** A static analysis test that fails if `#[0-9A-Fa-f]{3,6}` is found inside component source files.
 2. **Accessible Names:** Integration tests ensuring all interactive elements have accessible names naming their target.
 3. **No Default Classes:** A check to ensure no default color palette classes exist in the codebase.
+
+---
+
+## Status — 2026-08-28
+
+**This is a design brief, not a phase spec.** It has no backend counterpart and
+does not follow the `specNN` pairing rule, so it carries no *As Built* section
+and no phase depends on it.
+
+Where it and the shipped UI disagree, the shipped UI wins and the divergence is
+recorded in the *As Built* of the spec that owns the screen. The design tokens
+it describes live in `app/globals.css`, which is authoritative — note that
+`--color-*: initial` there removes Tailwind's default palette entirely, so any
+colour named in this document must exist as a token or it compiles to nothing.

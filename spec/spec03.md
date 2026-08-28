@@ -75,6 +75,22 @@ doing it here would remove the evidence Phase 4 needs to choose a threshold.
 
 ---
 
-## 7. As Built
+## As Built — 2026-08-28
 
-*Amend after implementation.*
+The retrieval inspector renders ranked chunks with scores at full precision, in
+the order the backend returned them.
+
+**Found by wiring the generated types**
+
+**The panel had been rendering blank text for every result.** It read
+`chunk.snippet`, which belongs to `CitationChunk` — the Q&A response shape —
+while `/search` returns `SearchResponseChunk`, whose field is `text`. It also
+keyed rows on a non-existent `chunk_id`, so every row keyed on `undefined`.
+
+Neither was visible until `lib/types.ts` was pointed at the generated schema and
+the build failed immediately. The test fixture had been written to the same wrong
+shape, so it agreed with the component and passed. The fixture is typed
+`SearchResponseChunk[]` now, so it cannot drift again.
+
+This is the screen Phase 3 depends on for judging retrieval by eye, and it was
+showing nothing.

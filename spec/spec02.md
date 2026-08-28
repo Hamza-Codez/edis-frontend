@@ -95,6 +95,22 @@ whole route, so the page simply does not exist for them.
 
 ---
 
-## 8. As Built
+## As Built — 2026-08-28
 
-*Amend after implementation.*
+Upload, status polling and the detail page work against real PDFs.
+
+**Divergences**
+
+- **`DocumentRow` and `DocumentStatus` are re-exported from the generated
+  contract**, not declared locally. The hand-written copies had drifted quietly
+  rather than failing the type check.
+- The upload control still quotes a hardcoded 25 MB limit. That number is the
+  unverified placeholder from Spike 2 and should come from the backend once
+  measured.
+
+**Found in use**
+
+The document library was broken for any account with an uploaded document — the
+backend listing raised on serialization. Fixed in `spec02` backend *As Built*;
+worth recording here because the symptom was a blank frontend page with an
+error only in the network tab.

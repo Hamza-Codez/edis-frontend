@@ -59,6 +59,17 @@ is a normal, correct result of a retrieval query; it simply would not license an
 
 ---
 
-## 6. As Built
+## As Built — 2026-08-28
 
-*Amend after implementation.*
+Mode selector, per-leg ranks and the below-threshold marker are built and
+render as specified.
+
+**Not exercised meaningfully.** The keyword leg returns zero rows on the current
+six-chunk corpus, so hybrid and vector-only produce identical output and the
+comparison the screen exists for has never been made. Revisit with a real corpus.
+
+**Divergence**
+
+Keyword-only mode reports `similarity: 0.0`, because no query vector is computed
+in that mode. The number is a placeholder rather than a measurement, and the
+inspector shows it as-is.
