@@ -55,7 +55,20 @@ A small, strict radius scale. Never exceed the maximum.
 * `none` (0px) — panels, dropdowns, table cells, dense controls
 * `sm` (2-3px) — buttons, inputs, badges
 * `md` (4-6px) — cards, dialogs (**Maximum rounding permitted**)
-* `full` (9999px) — status dots, avatars, and count badges **ONLY**.
+* `full` (9999px) — status dots, avatars, count badges, **and the EDIS brand
+  mark** — nothing else.
+
+  The brand mark is `rounded-full rounded-br-none`: three full corners and one
+  square. It is the logo, not a radius decision, so the scale above does not
+  govern it. Added 2026-08-29 at the owner's explicit direction, after an
+  earlier pass had "corrected" both marks to `md` to satisfy the guard — which
+  was the guard enforcing a rule the spec had simply failed to state.
+
+  `tests/design-contract.test.ts` exempts the **shape**, not the files:
+  `/\brounded-full\b(?! rounded-br-none)/`. A bare `rounded-full` still fails,
+  including inside `layout.tsx` and `login/page.tsx` — the two files most
+  likely to grow new chrome, and so the two where a blanket file exemption
+  would have cost the most.
 
 ### Spacing & Elevation
 * Derived from the "Moderate" density choice.

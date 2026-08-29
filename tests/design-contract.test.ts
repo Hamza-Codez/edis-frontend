@@ -64,9 +64,19 @@ describe('spec07 design contract', () => {
     expect(offenders(/\brounded(-[a-z]+)?-(lg|xl|2xl|3xl)\b/)).toEqual([]);
   });
 
-  it('§3 — rounded-full is reserved for dots, avatars and count badges', () => {
+  it('§3 — rounded-full is reserved for dots, avatars, badges and the brand mark', () => {
     // Everything else, badges included, is on the sm step.
-    expect(offenders(/\brounded-full\b/)).toEqual([]);
+    //
+    // The lookahead exempts exactly one shape: `rounded-full rounded-br-none`,
+    // the EDIS mark in the header and on the sign-in page. Three full corners
+    // and one square is the logo itself, not a radius choice. Owner's decision,
+    // recorded in spec07 section 3.
+    //
+    // Exempted by shape rather than by file, deliberately. Exempting layout.tsx
+    // and login/page.tsx wholesale would let any future rounded-full through in
+    // the two files most likely to grow new chrome; a bare rounded-full still
+    // fails here, including in those two files.
+    expect(offenders(/\brounded-full\b(?! rounded-br-none)/)).toEqual([]);
   });
 
   it('§3 — borders over shadows: nothing inline may cast one', () => {
