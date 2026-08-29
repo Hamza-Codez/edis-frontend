@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { 
   FileText, Search, Database, BookOpen, 
   File, Folder, Layers, PieChart, BrainCircuit, Files,
@@ -14,11 +13,13 @@ const ICONS = [
   Settings, Users, Globe, Shield, Key, Zap
 ];
 
-// Deterministic random number generator to avoid hydration mismatches if ever SSR'd,
-// but we'll also use a mounted check just in case.
+// Deterministic: a fixed seed and no clock or Math.random, so the server and
+// the client generate the same 40 icons. That is why there is no mounted gate —
+// there is no hydration mismatch to hide from, and gating cost a wasted render
+// plus a setState in an effect for nothing.
 function mulberry32(a: number) {
   return function() {
-    var t = a += 0x6D2B79F5;
+    let t = (a += 0x6d2b79f5);
     t = Math.imul(t ^ t >>> 15, t | 1);
     t ^= t + Math.imul(t ^ t >>> 7, t | 61);
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
@@ -26,14 +27,6 @@ function mulberry32(a: number) {
 }
 
 export function LoginBackground() {
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
   const rand = mulberry32(12345); // Fixed seed for consistent pattern
   const items = Array.from({ length: 40 }).map((_, i) => {
     const Icon = ICONS[Math.floor(rand() * ICONS.length)];

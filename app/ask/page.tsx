@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState, Suspense, useEffect } from 'react';
+import { useMemo, useRef, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronDown, ChevronRight, MessageCircleQuestion, Search } from 'lucide-react';
@@ -43,11 +43,17 @@ function AskFormContent() {
   const [activeChunkId, setActiveChunkId] = useState<number | null>(null);
   const entryRefs = useRef<Map<number, HTMLDivElement | null>>(new Map());
 
-  // Prefill without firing request is handled by initial useState(q || '')
-  useEffect(() => {
-    if (q && !question) setQuestion(q);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q]);
+  // Prefilling from ?q= adjusts state during render rather than in an effect.
+  // Navigating /ask?q=A -> /ask?q=B keeps the same mounted component, so the
+  // initial useState(q) alone would never see B; an effect would see it, but only
+  // after painting a stale field once. Comparing against the last q rendered
+  // updates in the same pass, and never fires a request — filling the box is the
+  // whole behaviour.
+  const [lastQ, setLastQ] = useState(q);
+  if (q !== lastQ) {
+    setLastQ(q);
+    setQuestion(q ?? '');
+  }
 
   const evidence = useMemo(() => (result ? buildEvidence(result) : []), [result]);
   const chipNumber = useMemo(() => {
@@ -95,8 +101,6 @@ function AskFormContent() {
       setIsLoading(false);
     }
   };
-
-  const isIdle = !result && !isLoading && !error;
 
   return (
     <div className="mx-auto max-w-7xl pb-16">

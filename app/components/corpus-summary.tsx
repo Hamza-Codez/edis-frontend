@@ -1,11 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useDocuments } from '@/app/hooks/use-documents';
 import { StatGrid, StatStack, Stat } from './ui/stat';
-
-type Counts = { indexed: number; processing: number; failed: number };
 
 /**
  * What the corpus can actually answer from, stated as a number.
@@ -56,22 +53,21 @@ export function CorpusSummary({ layout = 'grid' }: { layout?: 'grid' | 'stack' }
     );
   }
 
+  // StatGrid tone="ink", not a hand-rolled gradient. The previous markup reached
+  // for default-palette utilities, which `--color-*: initial` wipes — so the
+  // gradient, the dividers and the figure colour all compiled to nothing and the
+  // card rendered unstyled with invisible numbers. The tone gives the same
+  // near-black card from real tokens.
   return (
-    <div className="flex items-center justify-around rounded-md bg-gradient-to-r from-black via-zinc-900 to-zinc-700 border border-border py-3 px-2 shadow-md">
-      <div className="text-center px-3 border-r border-zinc-600 flex-1">
-        <div className="text-2xl font-space-grotesk font-bold text-white tabular-nums leading-none mb-1">{counts.indexed}</div>
-        <div className="text-xs font-medium text-zinc-400 uppercase tracking-wide">Searchable</div>
-      </div>
-      <div className="text-center px-3 border-r border-zinc-600 flex-1">
-        <div className="text-2xl font-space-grotesk font-bold text-white tabular-nums leading-none mb-1">{counts.processing}</div>
-        <div className="text-xs font-medium text-zinc-400 uppercase tracking-wide">Processing</div>
-      </div>
-      <div className="text-center px-3 flex-1">
-        <div className={`text-2xl font-space-grotesk font-bold tabular-nums leading-none mb-1 ${counts.failed > 0 ? 'text-red-400' : 'text-white'}`}>
-          {counts.failed}
-        </div>
-        <div className="text-xs font-medium text-zinc-400 uppercase tracking-wide">Failed</div>
-      </div>
-    </div>
+    <StatGrid columns={3} tone="ink">
+      <Stat label="Searchable" value={counts.indexed} hint="ready to answer from" />
+      <Stat label="Processing" value={counts.processing} hint="not yet searchable" />
+      <Stat
+        label="Failed"
+        value={counts.failed}
+        hint={counts.failed > 0 ? 'see Documents for why' : 'none'}
+        alarming={counts.failed > 0}
+      />
+    </StatGrid>
   );
 }

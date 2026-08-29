@@ -42,9 +42,9 @@ export default function LoginPage() {
   return (
     <div className="flex h-full items-center justify-center bg-canvas relative">
       <LoginBackground />
-      <div className="w-full max-w-md bg-surface border border-border p-8 relative z-10 shadow-lg">
+      <div className="w-full max-w-md bg-surface border border-border p-8 relative z-10">
         <h1 className="font-space-grotesk font-semibold text-2xl text-heading mb-6 flex items-center gap-2">
-          <span className="bg-accent rounded-full rounded-br-none p-1.5 shadow-sm flex items-center justify-center">
+          <span className="bg-accent rounded-md rounded-br-none p-1.5 flex items-center justify-center">
             <FileText className="w-5 h-5 text-surface" />
           </span>
           Sign In to EDIS DocSense

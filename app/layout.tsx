@@ -41,7 +41,7 @@ export default async function RootLayout({
           <div className="flex h-full flex-col">
             <header className="chrome-scope h-14 bg-chrome text-chrome-text flex items-center justify-between px-4 border-b border-chrome-border shrink-0">
               <Link href="/" className="font-space-grotesk font-bold text-xl tracking-tight text-chrome-text flex items-center gap-2">
-                <span className="bg-surface rounded-full rounded-br-none p-1 shadow-sm flex items-center justify-center">
+                <span className="bg-surface rounded-md rounded-br-none p-1 flex items-center justify-center">
                   <FileText className="w-4 h-4 text-accent" />
                 </span>
                 EDIS DocSense
