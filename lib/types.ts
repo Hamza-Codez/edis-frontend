@@ -29,6 +29,7 @@ export type SearchRequest = Schemas['SearchRequest'];
 export type SearchResponse = Schemas['SearchResponse'];
 export type SearchResponseChunk = Schemas['SearchResponseChunk'];
 export type SearchMode = NonNullable<SearchRequest['mode']>;
+export type SavedSearch = Schemas['SavedSearch'];
 
 // Grounded Q&A
 export type AskRequest = Schemas['AskRequest'];

@@ -4,21 +4,15 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Search, ArrowLeft } from 'lucide-react';
 import { fetchApi } from '../../lib/api-client';
-import type { SearchMode, SearchResponse, SearchResponseChunk } from '../../lib/types';
+import type {
+  SavedSearch,
+  SearchMode,
+  SearchResponse,
+  SearchResponseChunk,
+} from '../../lib/types';
 import { Panel } from '../components/ui/panel';
 import { SegmentControl } from '../components/ui/segment-control';
 import { Accordion, AccordionItem } from '../components/ui/accordion';
-
-interface SavedSearch {
-  id: number;
-  question: string;
-  mode: SearchMode;
-  limit: number;
-  timestamp: string;
-  results: { chunks: SearchResponseChunk[], min_similarity: number };
-}
-
-const SEARCH_MODES = ['vector', 'keyword', 'hybrid'] as const;
 
 export default function SearchPage() {
   const [question, setQuestion] = useState('');
@@ -34,24 +28,25 @@ export default function SearchPage() {
 
   const [recentSearches, setRecentSearches] = useState<SavedSearch[]>([]);
 
-  const loadHistory = async () => {
-    try {
-      const data = await fetchApi<SavedSearch[]>('/search/history');
-      setRecentSearches(data);
-    } catch (e) {
-      // ignore
-    }
-  };
+  // History is server-owned: POST /search writes the row, so the client never
+  // keeps a second copy that could disagree with the audit trail. Bumping the
+  // nonce after a search re-reads it.
+  const [historyNonce, setHistoryNonce] = useState(0);
 
   useEffect(() => {
-    loadHistory();
-  }, []);
-
-  const saveRecentSearch = (q: string, m: SearchMode, l: string, res: SearchResponseChunk[]) => {
-    // We now just reload the history from the server to ensure consistency.
-    // POST /search already saves it.
-    loadHistory();
-  };
+    let cancelled = false;
+    fetchApi<SavedSearch[]>('/search/history')
+      // Array.isArray, not a bare assign: anything else reaching this state
+      // throws inside the grouping useMemo below and white-screens the whole
+      // page — losing the results the user actually came for, over a side panel.
+      .then((data) => !cancelled && setRecentSearches(Array.isArray(data) ? data : []))
+      // Swallowed deliberately: the panel is a convenience, and an error banner
+      // for it would sit on top of the results the user actually asked for.
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [historyNonce]);
 
   const handleSearch = async (e?: React.FormEvent, overrideParams?: { q: string, m: SearchMode, l: string }) => {
     if (e) e.preventDefault();
@@ -61,11 +56,6 @@ export default function SearchPage() {
     const searchL = overrideParams?.l ?? limit;
 
     if (!searchQ.trim()) return;
-
-    // Prevent searching if it's already exactly in recent searches
-    if (recentSearches.some(s => s.question === searchQ && s.mode === searchM && s.limit === parseInt(searchL, 10))) {
-      return;
-    }
 
     setIsLoading(true);
     setError(null);
@@ -81,11 +71,15 @@ export default function SearchPage() {
       });
       
       setMinSimilarity(data.min_similarity);
-      
-      // Spec08: The frontend reads the min_similarity field from the response and filters the chunks array in memory
-      const filteredChunks = data.chunks.filter(chunk => chunk.similarity >= data.min_similarity);
-      setResults(filteredChunks);
-      saveRecentSearch(searchQ, searchM, searchL, filteredChunks);
+
+      // Every chunk the backend returned is shown. min_similarity marks rows, it
+      // never filters them (spec08 §2.3; spec04 §2: weak results are shown, never
+      // hidden). Filtering here defeated the point of the screen — it is the only
+      // place to see *why* /ask refused — and in keyword mode, where the backend
+      // reports similarity as 0.0 because no query vector is computed, it silently
+      // discarded every single result.
+      setResults(data.chunks);
+      setHistoryNonce((n) => n + 1);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred during search.');
       setResults(null);
@@ -257,7 +251,11 @@ export default function SearchPage() {
             <div className="space-y-4">
               {results.map((chunk, index) => {
                 const delta = getRankDelta(chunk, index);
-                
+                // Never in keyword mode: there is no query vector there, so the
+                // backend reports similarity as 0.0 and every row would be marked
+                // (spec08 §1.2). The gate itself only ever runs on a cosine.
+                const belowGate = mode !== 'keyword' && chunk.similarity < minSimilarity;
+
                 return (
                   <div key={`${chunk.document_id}-${chunk.ordinal}`} className="bg-structure border border-border rounded-md overflow-hidden">
                     <div className="p-5 space-y-3">
@@ -289,13 +287,21 @@ export default function SearchPage() {
                           )}
                           
                           {mode === 'hybrid' && chunk.vector_rank === null && (
-                            <span className="text-xs font-medium text-warning bg-warning/10 px-2 py-1 rounded-sm">keyword only</span>
+                            <span className="rounded-sm bg-warning-surface px-2 py-1 text-xs font-medium text-warning-strong">keyword only</span>
                           )}
                           {mode === 'hybrid' && chunk.keyword_rank === null && (
                             <span className="text-xs font-medium text-accent bg-accent/10 px-2 py-1 rounded-sm">vector only</span>
                           )}
                           {mode === 'keyword' && (
-                            <span className="text-xs font-mono text-text-muted bg-canvas px-2 py-1 rounded-sm border border-border">cos —</span>
+                            <span className="text-xs font-mono text-text-muted bg-canvas px-2 py-1 rounded-sm border border-border" title="Not computed in keyword mode">cos —</span>
+                          )}
+                          {belowGate && (
+                            <span
+                              className="rounded-sm bg-warning-surface px-2 py-1 text-xs font-medium text-warning-strong"
+                              title={`Cosine ${chunk.similarity.toFixed(4)} is under the ${minSimilarity} gate, so /ask would not use this passage.`}
+                            >
+                              below the gate
+                            </span>
                           )}
                         </div>
                         <Link

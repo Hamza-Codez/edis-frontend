@@ -538,8 +538,11 @@ export interface components {
             id: number;
             /** Question */
             question: string;
-            /** Mode */
-            mode: string;
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "vector" | "keyword" | "hybrid";
             /** Limit */
             limit: number;
             results: components["schemas"]["SearchResponse"];
@@ -1109,7 +1112,6 @@ export interface operations {
             header?: never;
             path?: never;
             cookie?: {
-                csrf_token?: string | null;
                 session?: string | null;
             };
         };
