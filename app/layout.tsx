@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { Space_Grotesk, Sora } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
-import { getCurrentUser } from "@/lib/session";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { getSessionState } from "@/lib/session";
+import { PATHNAME_HEADER } from "@/proxy";
+import { BackendUnavailable } from "./components/backend-unavailable";
 import { navigationFor } from "@/lib/labels";
 import { SignOutButton } from "./components/sign-out-button";
 import { Navigation } from "./components/navigation";
@@ -28,14 +32,31 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getCurrentUser();
+  const session = await getSessionState();
+  const pathname = (await headers()).get(PATHNAME_HEADER) ?? "";
+  const onLogin = pathname.startsWith("/login");
+
+  // The sign-in page renders bare whatever the session says. Without this, an
+  // expired session redirected to /login, whose layout saw the same expired
+  // session, and redirected again.
+  if (!onLogin && session.status === "expired") {
+    redirect("/login?session=expired");
+  }
+
+  const user = session.status === "authenticated" ? session.user : null;
 
   return (
     <html lang="en" className="h-full">
       <body
         className={`${spaceGrotesk.variable} ${sora.variable} antialiased bg-canvas text-text h-full overflow-hidden`}
       >
-        {!user ? (
+        {session.status === "unavailable" && !onLogin ? (
+          // Never the bare branch: that renders a signed-in user a page with no
+          // navigation and no sign-out, and says nothing about why.
+          <main className="h-full overflow-y-auto">
+            <BackendUnavailable />
+          </main>
+        ) : !user ? (
           <main className="h-full overflow-y-auto">{children}</main>
         ) : (
           <div className="flex h-full flex-col">
